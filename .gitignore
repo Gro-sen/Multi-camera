@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# 虚拟环境
+.venv/
+venv/
+env/
+ENV/
+*.env
+*.env.*
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+.history/
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 日志和输出
+*.log
+*.out
+
+# 数据和模型
+*.h5
+*.hdf5
+*.ckpt
+*.pth
+*.pt
+*.pkl
+*.joblib
+*.npz
+*.npy
+*.onnx
+*.tflite
+*.pb
+*.sav
+*.model
+
+# 临时文件
+*.tmp
+*.swp
+*.bak
+
+# 项目特有
+alarms/
+kb/index/
+kb/source/
+static/upload/
+static/cache/
+output/
+runs/
+logs/

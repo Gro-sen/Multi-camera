@@ -1,0 +1,48 @@
+{
+  "case_id": "case_20260226_170929",
+  "timestamp": "2026-02-26T17:09:29.188608",
+  "camera_id": "cam1",
+  "alarm_level": "一般",
+  "alarm_reason": "监测不到清晰可见的工牌",
+  "scene_summary": "室内场景，一人低头看手机，周围有空调和悬挂衣物",
+  "is_alarm": "是",
+  "confidence": 1.0,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260226_170929_cam1_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "监测不到清晰可见的工牌",
+    "confidence": 1.0
+  },
+  "analysis": {
+    "risk_assessment": "存在安全隐患，未佩戴工牌可能表明该人员未经授权或身份不明。",
+    "recommendation": "请安保人员核实该人员的身份并要求其佩戴工牌。",
+    "rules_applied": [
+      "【personnel.md】告警条件（人员）",
+      "【personnel.md】特别说明"
+    ]
+  },
+  "vision_facts": {
+    "has_person": true,
+    "badge_status": "未佩戴",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": false,
+    "scene_summary": "室内场景，一人低头看手机，周围有空调和悬挂衣物",
+    "object_details": {
+      "person_count": 1,
+      "person_positions": [
+        "中央偏下位置，低头看手机"
+      ],
+      "environment_status": "室内居住环境，有上层床铺、空调和门上悬挂衣物"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-26T17:09:29.196608",
+  "reviewed": false,
+  "review_result": null
+}

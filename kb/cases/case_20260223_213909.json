@@ -1,0 +1,46 @@
+{
+  "case_id": "case_20260223_213909",
+  "timestamp": "2026-02-23T21:39:09.640167",
+  "alarm_level": "一般",
+  "alarm_reason": "监测不到清晰可见的工牌",
+  "scene_summary": "室内场景，一人穿着灰色连帽衫，背景有衣架和风扇。",
+  "is_alarm": "是",
+  "confidence": 1.0,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260223_213909_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "监测不到清晰可见的工牌",
+    "confidence": 1.0
+  },
+  "analysis": {
+    "risk_assessment": "存在安全隐患，未佩戴工牌的人员可能未经授权进入非公共区域。",
+    "recommendation": "请核实该人员的身份，并确保其佩戴工牌后再进入非公共区域。",
+    "rules_applied": [
+      "personnel.md"
+    ]
+  },
+  "vision_facts": {
+    "has_person": true,
+    "badge_status": "未佩戴",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": false,
+    "scene_summary": "室内场景，一人穿着灰色连帽衫，背景有衣架和风扇。",
+    "object_details": {
+      "person_count": 1,
+      "person_positions": [
+        "前景中央"
+      ],
+      "environment_status": "室内，白色墙壁，有衣架和风扇。"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-23T21:39:09.642166",
+  "reviewed": false,
+  "review_result": null
+}

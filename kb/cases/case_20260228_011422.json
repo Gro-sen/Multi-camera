@@ -1,0 +1,48 @@
+{
+  "case_id": "case_20260228_011422",
+  "timestamp": "2026-02-28T01:14:22.295238",
+  "camera_id": "cam1",
+  "alarm_level": "一般",
+  "alarm_reason": "监测不到清晰可见的工牌",
+  "scene_summary": "夜视监控画面中可见绿色光线下的人影，环境昏暗",
+  "is_alarm": "是",
+  "confidence": 1.0,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260228_011422_cam1_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "监测不到清晰可见的工牌",
+    "confidence": 1.0
+  },
+  "analysis": {
+    "risk_assessment": "存在安全隐患，未佩戴工牌的人员可能未经授权进入特定区域",
+    "recommendation": "通知安保人员进行现场核实",
+    "rules_applied": [
+      "【personnel.md】告警条件（人员）",
+      "【personnel.md】特别说明"
+    ]
+  },
+  "vision_facts": {
+    "has_person": true,
+    "badge_status": "未佩戴",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": false,
+    "scene_summary": "夜视监控画面中可见绿色光线下的人影，环境昏暗",
+    "object_details": {
+      "person_count": 1,
+      "person_positions": [
+        "左侧边缘"
+      ],
+      "environment_status": "昏暗环境，绿色夜视效果"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-28T01:14:22.295238",
+  "reviewed": false,
+  "review_result": null
+}

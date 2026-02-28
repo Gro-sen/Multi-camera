@@ -1,0 +1,46 @@
+{
+  "case_id": "case_20260228_000152",
+  "timestamp": "2026-02-28T00:01:52.312975",
+  "camera_id": "cam2",
+  "alarm_level": "一般",
+  "alarm_reason": "环境存在电气风险",
+  "scene_summary": "监控画面显示杂乱的线缆和电子设备，无人员活动",
+  "is_alarm": "是",
+  "confidence": 0.8,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260228_000152_cam2_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "环境存在电气风险",
+    "confidence": 0.8
+  },
+  "analysis": {
+    "risk_assessment": "存在电线杂乱和电子设备散落的情况，虽然当前无人员活动，但环境风险依然存在。",
+    "recommendation": "建议检查并整理杂乱的线缆，确保电子设备的安全放置。",
+    "rules_applied": [
+      "【case_case_20260227_235447.md】",
+      "【case_case_20260226_175943_v1.md】"
+    ]
+  },
+  "vision_facts": {
+    "has_person": false,
+    "badge_status": "不适用",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": true,
+    "scene_summary": "监控画面显示杂乱的线缆和电子设备，无人员活动",
+    "object_details": {
+      "person_count": 0,
+      "person_positions": [],
+      "environment_status": "室内环境，线缆杂乱，电子设备放置在地面"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-28T00:01:52.314937",
+  "reviewed": false,
+  "review_result": null
+}

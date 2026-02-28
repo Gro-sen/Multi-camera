@@ -1,0 +1,48 @@
+{
+  "case_id": "case_20260226_171011",
+  "timestamp": "2026-02-26T17:10:11.353867",
+  "camera_id": "cam1",
+  "alarm_level": "一般",
+  "alarm_reason": "监测不到清晰可见的工牌",
+  "scene_summary": "一名男子在室内使用手机，周围有衣柜、空调和悬挂衣物。",
+  "is_alarm": "是",
+  "confidence": 1.0,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260226_171011_cam1_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "监测不到清晰可见的工牌",
+    "confidence": 1.0
+  },
+  "analysis": {
+    "risk_assessment": "存在安全隐患，未佩戴工牌的人员在室内活动可能增加误操作的风险。",
+    "recommendation": "提醒该人员佩戴工牌，并进行身份核实。",
+    "rules_applied": [
+      "【personnel.md】告警条件（人员）",
+      "【personnel.md】特别说明"
+    ]
+  },
+  "vision_facts": {
+    "has_person": true,
+    "badge_status": "未佩戴",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": false,
+    "scene_summary": "一名男子在室内使用手机，周围有衣柜、空调和悬挂衣物。",
+    "object_details": {
+      "person_count": 1,
+      "person_positions": [
+        "画面中央"
+      ],
+      "environment_status": "普通室内环境，有空调、衣柜及悬挂衣物"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-26T17:10:11.355868",
+  "reviewed": false,
+  "review_result": null
+}

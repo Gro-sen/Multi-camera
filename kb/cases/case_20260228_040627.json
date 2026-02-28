@@ -1,0 +1,49 @@
+{
+  "case_id": "case_20260228_040627",
+  "timestamp": "2026-02-28T04:06:27.428796",
+  "camera_id": "cam2",
+  "alarm_level": "一般",
+  "alarm_reason": "监测不到清晰可见的工牌",
+  "scene_summary": "凌晨时分的室内休息室，有床铺、储物柜和空调",
+  "is_alarm": "是",
+  "confidence": 1.0,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260228_040627_cam2_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "监测不到清晰可见的工牌",
+    "confidence": 1.0
+  },
+  "analysis": {
+    "risk_assessment": "存在安全隐患，未佩戴工牌的人员可能未经授权进入非公共区域。",
+    "recommendation": "请核实该人员的身份，并确保所有进入非公共区域的人员都佩戴工牌。",
+    "rules_applied": [
+      "【personnel.md】",
+      "【personnel.md】特别说明",
+      "【case_case_20260228_021044.md】"
+    ]
+  },
+  "vision_facts": {
+    "has_person": true,
+    "badge_status": "未佩戴",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": false,
+    "scene_summary": "凌晨时分的室内休息室，有床铺、储物柜和空调",
+    "object_details": {
+      "person_count": 1,
+      "person_positions": [
+        "左侧储物柜旁"
+      ],
+      "environment_status": "室内环境，无明显异常活动"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-28T04:06:27.429799",
+  "reviewed": false,
+  "review_result": null
+}

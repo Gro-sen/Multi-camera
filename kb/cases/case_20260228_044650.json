@@ -1,0 +1,48 @@
+{
+  "case_id": "case_20260228_044650",
+  "timestamp": "2026-02-28T04:46:50.985513",
+  "camera_id": "cam2",
+  "alarm_level": "一般",
+  "alarm_reason": "监测不到清晰可见的工牌",
+  "scene_summary": "宿舍房间内，一名人员在床边活动",
+  "is_alarm": "是",
+  "confidence": 1.0,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260228_044650_cam2_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "监测不到清晰可见的工牌",
+    "confidence": 1.0
+  },
+  "analysis": {
+    "risk_assessment": "存在安全隐患，未佩戴工牌的人员在宿舍房间内活动可能增加安全风险。",
+    "recommendation": "提醒该人员佩戴工牌，并进行身份核实。",
+    "rules_applied": [
+      "【personnel.md】告警条件（人员）",
+      "【personnel.md】特别说明"
+    ]
+  },
+  "vision_facts": {
+    "has_person": true,
+    "badge_status": "未佩戴",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": false,
+    "scene_summary": "宿舍房间内，一名人员在床边活动",
+    "object_details": {
+      "person_count": 1,
+      "person_positions": [
+        "左侧床边"
+      ],
+      "environment_status": "环境整洁，无异常"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-28T04:46:50.990579",
+  "reviewed": false,
+  "review_result": null
+}

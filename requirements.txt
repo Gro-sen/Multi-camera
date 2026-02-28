@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+websockets
+opencv-python
+ollama
+aiofiles
+sentence-transformers
+faiss-cpu
+tqdm
+python-dotenv
+pydantic
+psutil
+playsound

@@ -1,0 +1,47 @@
+{
+  "case_id": "case_20260228_023653",
+  "timestamp": "2026-02-28T02:36:53.727614",
+  "camera_id": "cam2",
+  "alarm_level": "一般",
+  "alarm_reason": "监测不到清晰可见的工牌",
+  "scene_summary": "宿舍内部，有上下铺床、空调和衣柜，时间显示为凌晨",
+  "is_alarm": "是",
+  "confidence": 1.0,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260228_023653_cam2_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "监测不到清晰可见的工牌",
+    "confidence": 1.0
+  },
+  "analysis": {
+    "risk_assessment": "存在安全隐患，未佩戴工牌的人员在宿舍内部活动可能未经授权。",
+    "recommendation": "通知相关人员检查该人员的身份，并要求其佩戴工牌。",
+    "rules_applied": [
+      "personnel.md"
+    ]
+  },
+  "vision_facts": {
+    "has_person": true,
+    "badge_status": "未佩戴",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": false,
+    "scene_summary": "宿舍内部，有上下铺床、空调和衣柜，时间显示为凌晨",
+    "object_details": {
+      "person_count": 1,
+      "person_positions": [
+        "左侧床铺附近"
+      ],
+      "environment_status": "夜间，环境安静，无异常"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-28T02:36:53.731179",
+  "reviewed": false,
+  "review_result": null
+}

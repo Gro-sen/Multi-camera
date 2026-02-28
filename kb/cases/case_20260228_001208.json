@@ -1,0 +1,45 @@
+{
+  "case_id": "case_20260228_001208",
+  "timestamp": "2026-02-28T00:12:08.856820",
+  "camera_id": "cam2",
+  "alarm_level": "一般",
+  "alarm_reason": "环境存在电气风险",
+  "scene_summary": "监控画面显示杂乱的电线、电源插座及充电设备，无人员活动",
+  "is_alarm": "是",
+  "confidence": 0.8,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260228_001208_cam2_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "环境存在电气风险",
+    "confidence": 0.8
+  },
+  "analysis": {
+    "risk_assessment": "存在电线杂乱的情况，增加了电气事故的风险。",
+    "recommendation": "建议进行电线整理，并检查是否存在安全隐患。",
+    "rules_applied": [
+      "case_case_20260228_000258.md"
+    ]
+  },
+  "vision_facts": {
+    "has_person": false,
+    "badge_status": "不适用",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": true,
+    "scene_summary": "监控画面显示杂乱的电线、电源插座及充电设备，无人员活动",
+    "object_details": {
+      "person_count": 0,
+      "person_positions": [],
+      "environment_status": "环境中有电线、电源插座及充电设备，地面为白色"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-28T00:12:08.863666",
+  "reviewed": false,
+  "review_result": null
+}

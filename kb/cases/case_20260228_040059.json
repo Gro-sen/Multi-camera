@@ -1,0 +1,47 @@
+{
+  "case_id": "case_20260228_040059",
+  "timestamp": "2026-02-28T04:00:59.853107",
+  "camera_id": "cam1",
+  "alarm_level": "一般",
+  "alarm_reason": "监测不到清晰可见的工牌",
+  "scene_summary": "夜视图像中左侧可见模糊人形轮廓，背景为深色金属结构",
+  "is_alarm": "是",
+  "confidence": 0.8,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260228_040059_cam1_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "监测不到清晰可见的工牌",
+    "confidence": 0.8
+  },
+  "analysis": {
+    "risk_assessment": "存在安全隐患，未佩戴工牌的人员在场可能增加误操作的风险",
+    "recommendation": "提醒相关人员佩戴工牌，并进行身份验证",
+    "rules_applied": [
+      "personnel.md"
+    ]
+  },
+  "vision_facts": {
+    "has_person": true,
+    "badge_status": "未佩戴",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": false,
+    "scene_summary": "夜视图像中左侧可见模糊人形轮廓，背景为深色金属结构",
+    "object_details": {
+      "person_count": 1,
+      "person_positions": [
+        "左侧边缘"
+      ],
+      "environment_status": "夜间环境，夜视模式下呈现绿色调，无明显异常"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-28T04:00:59.855109",
+  "reviewed": false,
+  "review_result": null
+}

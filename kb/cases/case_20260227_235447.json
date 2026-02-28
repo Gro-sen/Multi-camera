@@ -1,0 +1,46 @@
+{
+  "case_id": "case_20260227_235447",
+  "timestamp": "2026-02-27T23:54:47.334814",
+  "camera_id": "cam2",
+  "alarm_level": "一般",
+  "alarm_reason": "环境存在电气风险",
+  "scene_summary": "工作区域电线杂乱，电子设备散落",
+  "is_alarm": "是",
+  "confidence": 0.8,
+  "image_path": "d:\\code\\Python\\python\\vision-describe\\alarms\\20260227_235447_cam2_normal.jpg",
+  "final_decision": {
+    "is_alarm": "是",
+    "alarm_level": "一般",
+    "alarm_reason": "环境存在电气风险",
+    "confidence": 0.8
+  },
+  "analysis": {
+    "risk_assessment": "工作区域电线杂乱，存在潜在的电气安全隐患",
+    "recommendation": "请立即清理杂乱电线，并检查是否有裸露电线或电气设备异常现象",
+    "rules_applied": [
+      "【case_case_20260226_175943_v1.md】",
+      "【environment.md】"
+    ]
+  },
+  "vision_facts": {
+    "has_person": false,
+    "badge_status": "不适用",
+    "enter_restricted_area": false,
+    "has_fire_or_smoke": false,
+    "has_electric_risk": true,
+    "scene_summary": "工作区域电线杂乱，电子设备散落",
+    "object_details": {
+      "person_count": 0,
+      "person_positions": [],
+      "environment_status": "电线杂乱，设备摆放不规范"
+    }
+  },
+  "metadata": {
+    "model": "qwen2.5-7b-instruct",
+    "kb_cases_used": 3,
+    "kb_total_references": 3
+  },
+  "created_at": "2026-02-27T23:54:47.337313",
+  "reviewed": false,
+  "review_result": null
+}
