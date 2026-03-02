@@ -106,11 +106,11 @@ def smart_chunk_text(text, source_file, max_chars=400):
 def build_index(data_dir='kb/source', 
                 index_path='kb/index/faiss_bge.index',
                 meta_path='kb/index/docs_bge.pkl',
-                model_name='BAAI/bge-small-zh-v1.5'):
+                model_name='D:/code/python/git/Multi-camera/bge-small-zh-v1.5'):
     """构建知识库索引"""
-    
+
     print("🔨 开始构建知识库索引...")
-    
+
     # 确保目录存在
     os.makedirs(os.path.dirname(index_path) or '.', exist_ok=True)
     
