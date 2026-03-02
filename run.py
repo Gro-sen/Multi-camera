@@ -22,29 +22,26 @@ def force_exit(signum, frame):
     os._exit(0)
 
 
+def choose_provider() -> str:
+    print("\n请选择推理提供方：")
+    print("1) 阿里云 API")
+    print("2) Ollama 本地模型")
+    choice = input("输入 1 或 2（默认 1）: ").strip()
+
+    if choice == "2":
+        return "ollama"
+    return "aliyun"
+
+
 if __name__ == "__main__":
     # 注册信号处理器
     signal.signal(signal.SIGINT, force_exit)
     signal.signal(signal.SIGTERM, force_exit)
     
+    provider = choose_provider()
+    os.environ["MODEL_PROVIDER"] = provider
+    print(f"[启动] 当前推理提供方: {provider}")
+
+    # 延迟导入，确保上面的环境变量先设置
     import uvicorn
-    from app.main import app
-    from app.core import get_logger
-    
-    logger = get_logger(__name__)
-    
-    logger.info("\n" + "="*60)
-    logger.info("智能安防视频分析系统 - 启动")
-    logger.info("="*60)
-    logger.info(f"项目根目录: {project_root}")
-    logger.info(f"访问地址: http://localhost:8000")
-    logger.info(f"API文档: http://localhost:8000/docs")
-    logger.info(f"WebSocket: ws://localhost:8000/ws")
-    logger.info("="*60 + "\n")
-    
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8000,
-        log_level="info",
-    )
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=False)

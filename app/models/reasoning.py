@@ -160,6 +160,39 @@ class AlibabaReasoningModel(ReasoningModelBase):
             logger.error(f"阿里云推理失败: {e}", exc_info=True)
             raise ModelException(f"阿里云推理模型失败: {e}") from e
 
+    def infer(self, facts: dict, cases: list, prompt: str) -> str:
+        """统一接口：facts + cases + prompt"""
+        if not self.available:
+            raise ModelException("阿里云推理模型不可用")
+        try:
+            # 构造 prompt
+            vision_summary = f"""## 当前画面分析结果：
+- 有人员：{facts.get('has_person')}
+- 工牌状态：{facts.get('badge_status')}
+- 进入禁区：{facts.get('enter_restricted_area')}
+- 火灾/烟雾：{facts.get('has_fire_or_smoke')}
+- 电气风险：{facts.get('has_electric_risk')}
+- 场景描述：{facts.get('scene_summary')}
+"""
+            kb_context = ""
+            if cases and len(cases) > 0:
+                kb_context = "\n## 知识库规则：\n"
+                for case in cases[:3]:
+                    source = case.get('source', '未知')
+                    text = case.get('text', '')
+                    kb_context += f"### 【{source}】\n{text}\n\n"
+            final_prompt = f"{prompt}\n{vision_summary}\n{kb_context}"
+
+            response = self.client.call_api(
+                prompt=final_prompt,
+                model=self.model_name
+            )
+            logger.info(f"【DEBUG】推理模型原始响应: {response}")
+            return response
+        except Exception as e:
+            logger.error(f"阿里云推理失败: {e}", exc_info=True)
+            raise ModelException(f"阿里云推理模型失败: {e}") from e
+
 
 class ReasoningModelFactory:
     """推理模型工厂"""

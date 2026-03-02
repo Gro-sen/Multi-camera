@@ -18,7 +18,7 @@ _loading_in_progress = False  # 标记是否正在加载
 
 def load_index(index_path='kb/index/faiss_bge.index', 
                meta_path='kb/index/docs_bge.pkl', 
-               model_name='BAAI/bge-small-zh-v1.5'):
+               model_name='D:/code/python/git/Multi-camera/bge-small-zh-v1.5'):
     """加载索引、元数据和模型（线程安全）"""
     global _cached_model, _cached_index, _cached_meta, _loading_in_progress
     

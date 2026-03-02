@@ -88,6 +88,22 @@ class AlibabaVisionModel(VisionModelBase):
             logger.error(f"视觉分析失败: {e}", exc_info=True)
             raise ModelException(f"视觉模型分析失败: {e}") from e
 
+    def analyze(self, image_base64: str, prompt: str) -> str:
+        """统一接口：image_base64 + prompt"""
+        if not self.available:
+            raise ModelException("视觉模型不可用")
+        try:
+            raw_output = self.client.call_multimodal_api(
+                prompt=prompt,
+                image_b64=image_base64,
+                model=config.VISION_MODEL
+            )
+            logger.info(f"【DEBUG】视觉模型原始响应: {raw_output}")
+            return raw_output
+        except Exception as e:
+            logger.error(f"视觉分析失败: {e}", exc_info=True)
+            raise ModelException(f"视觉模型分析失败: {e}") from e
+
 
 class VisionModelFactory:
     """视觉模型工厂"""

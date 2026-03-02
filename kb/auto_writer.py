@@ -35,7 +35,9 @@ def write_alarm_case_to_kb(case: dict):
     kb_total = metadata.get('kb_total_references', 0)
     kb_rules = metadata.get('kb_rule_files', 0)
     kb_history = metadata.get('kb_history_cases', metadata.get('kb_cases_used', 0))
-    model_used = metadata.get('model', '未知')
+    reasoning_model = metadata.get('reasoning_model', metadata.get('model', '未知'))
+    vision_model = metadata.get('vision_model', '未知')
+    model_used = f"推理模型: {reasoning_model} | 视觉模型: {vision_model}"
     kb_cases_used = metadata.get('kb_cases_used', 0)
     print(f"【AUTO_WRITER】知识库使用详情:")
     print(f"  总参考文档: {kb_total}")
@@ -151,7 +153,7 @@ def trigger_index_update():
                     data_dir='kb/source',
                     index_path='kb/index/faiss_bge.index',
                     meta_path='kb/index/docs_bge.pkl',
-                    model_name='BAAI/bge-small-zh-v1.5'
+                    model_name='D:/code/python/git/Multi-camera/bge-small-zh-v1.5'
                 )
                 
                 if result['status'] == 'success':

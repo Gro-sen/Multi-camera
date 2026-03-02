@@ -19,36 +19,31 @@ logger = get_logger(__name__)
 class InferenceService:
     """推理服务"""
     
-    def __init__(self):
+    def __init__(self, vision_model=None, reasoning_model=None, kb=None, *args, **kwargs):
+        self.kb = kb
+
+        # 优先使用外部传入；未传入则按 MODEL_PROVIDER 工厂创建
+        if vision_model is None or reasoning_model is None:
+            from app.models.factory import create_models
+            vision_model, reasoning_model = create_models()
+
+        self.vision_model = vision_model
+        self.reasoning_model = reasoning_model
         self.alarm_service = AlarmService()
-        self.vision_client = None
-        self.reasoning_model = None
-        self.kb = None
+
+        # 只做依赖初始化，不覆盖模型
         self._initialize_models()
-    
+
     def _initialize_models(self) -> None:
-        """初始化模型"""
+        """初始化依赖（不要在这里覆盖 self.vision_model / self.reasoning_model）"""
         try:
-            from app.utils.alibaba_client import AlibabaOpenAIClient
-            self.vision_client = AlibabaOpenAIClient()
-            logger.info("视觉模型客户端已初始化")
-        except ImportError as e:
-            logger.warning(f"视觉模型初始化失败: {e}")
-        
-        try:
-            from app.models import ReasoningModelFactory
-            self.reasoning_model = ReasoningModelFactory.get_default_model()
-            logger.info("推理模型已初始化")
-        except ImportError as e:
-            logger.warning(f"推理模型初始化失败: {e}")
-        
-        try:
-            from kb import kb
-            self.kb = kb
+            if self.kb is None:
+                from kb import kb
+                self.kb = kb
             logger.info("知识库已初始化")
         except ImportError as e:
             logger.warning(f"知识库初始化失败: {e}")
-    
+               
     def frame_to_base64(self, frame) -> str:
         """将帧转换为Base64编码"""
         frame = cv2.resize(frame, (640, 360))
@@ -57,22 +52,19 @@ class InferenceService:
     
     def analyze_vision(self, frame) -> Optional[VisionFacts]:
         """视觉模型分析"""
-        if self.vision_client is None:
-            logger.error("视觉模型客户端未初始化")
+        if self.vision_model is None:
+            logger.error("视觉模型未初始化")
             return None
-        
+
         try:
             image_b64 = self.frame_to_base64(frame)
-            
             vision_prompt = """
 你是公司内部安防系统的【视觉感知模块】。
 只输出 JSON，不要解释，不要多余文字。
-
 重要规则：
 - 仔细观察画面，即使人员较小或在边缘也要识别
 - 看到人但没看到工牌 → badge_status 填 "未佩戴"
 - 只有背对镜头或严重遮挡才填 "无法确认"
-
 格式如下：
 {
   "has_person": true/false,
@@ -88,22 +80,20 @@ class InferenceService:
   }
 }
 """
-            
-            raw_output = self.vision_client.call_multimodal_api(
-                prompt=vision_prompt,
-                image_b64=image_b64,
-                model=config.VISION_MODEL
-            )
-            
-            # ← 添加这行调试日志
+            # 统一接口：只传两个参数
+            raw_output = self.vision_model.analyze(image_b64, vision_prompt)
             logger.info(f"【DEBUG】视觉模型原始响应: {raw_output}")
-            
-            try:
-                vision_dict = JSONFixer.safe_parse(raw_output)
-            except:
-                vision_dict = json.loads(raw_output)
-            
-            # 如果视觉模型返回空结果，使用默认值
+
+            if isinstance(raw_output, VisionFacts):
+                return raw_output
+            elif isinstance(raw_output, dict):
+                vision_dict = raw_output
+            else:
+                try:
+                    vision_dict = JSONFixer.safe_parse(raw_output)
+                except Exception:
+                    vision_dict = json.loads(raw_output)
+
             if not vision_dict:
                 logger.warning("视觉模型返回空结果，使用默认值")
                 vision_dict = {
@@ -118,7 +108,7 @@ class InferenceService:
             vision_facts = VisionFacts(**vision_dict)
             logger.debug(f"视觉分析完成: {vision_facts.dict()}")
             return vision_facts
-            
+
         except Exception as e:
             logger.error(f"视觉分析失败: {e}", exc_info=True)
             return None
@@ -166,20 +156,73 @@ class InferenceService:
         if self.reasoning_model is None:
             logger.error("推理模型未初始化")
             return None
-        
+
         try:
-            reasoning_result = self.reasoning_model.infer(vision_facts, similar_cases)
+            reasoning_prompt = """
+你是安防系统的决策模块。
+**核心原则：严格按照知识库规则执行判断，不得自行放宽或修改条件。**
+根据知识库规则和当前画面分析结果，输出JSON格式的决策：
+{
+  "final_decision": {
+    "is_alarm": "是/否",
+    "alarm_level": "无/一般/严重/紧急",
+    "alarm_reason": "原因",
+    "confidence": 0.0-1.0
+  },
+  "analysis": {
+    "risk_assessment": "风险评估",
+    "recommendation": "处置建议",
+    "rules_applied": ["应用的规则"]
+  }
+}
+只输出JSON，不要其他文字。
+"""
+            # 统一接口：只传三个参数
+            raw_output = self.reasoning_model.infer(vision_facts.dict(), similar_cases, reasoning_prompt)
+            logger.info(f"【DEBUG】推理模型原始响应: {raw_output}")
+
+            if isinstance(raw_output, ReasoningResult):
+                return raw_output
+            elif isinstance(raw_output, dict):
+                reasoning_dict = raw_output
+            else:
+                try:
+                    reasoning_dict = JSONFixer.safe_parse(raw_output)
+                except Exception:
+                    reasoning_dict = json.loads(raw_output)
+
+            if not reasoning_dict:
+                logger.warning("推理模型返回空结果，使用默认值")
+                reasoning_dict = {
+                    "final_decision": {
+                        "is_alarm": "否",
+                        "alarm_level": "无",
+                        "alarm_reason": "推理系统异常",
+                        "confidence": 0.0
+                    },
+                    "analysis": {
+                        "risk_assessment": "推理系统故障",
+                        "recommendation": "请检查推理模型",
+                        "rules_applied": ["错误处理"]
+                    },
+                    "metadata": {
+                        "model": "fallback",
+                        "timestamp": datetime.now().isoformat(),
+                        "error": str(e)
+                    }
+                }
+
+            reasoning_result = ReasoningResult(**reasoning_dict)
             logger.debug(f"推理完成: {reasoning_result.dict()}")
             return reasoning_result
-            
+
         except Exception as e:
             logger.error(f"推理失败: {e}", exc_info=True)
-            # 返回安全的默认决策
             return ReasoningResult(
                 final_decision=AlarmDecision(
                     is_alarm="否",
                     alarm_level="无",
-                    alarm_reason=f"推理系统异常",
+                    alarm_reason="推理系统异常",
                     confidence=0.0
                 ),
                 analysis=Analysis(
@@ -293,7 +336,8 @@ class InferenceService:
             "analysis": reasoning_result.analysis.dict(),
             "vision_facts": vision_facts.dict(),
             "metadata": {
-                "model": config.REASONING_MODEL,
+                "reasoning_model": getattr(self.reasoning_model, "model", config.REASONING_MODEL),
+                "vision_model": getattr(self.vision_model, "model", "未知"),
                 "kb_cases_used": len(similar_cases) if similar_cases else 0,
                 "kb_total_references": len(similar_cases) if similar_cases else 0,
             }

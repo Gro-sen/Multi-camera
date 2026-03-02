@@ -16,6 +16,8 @@ from app.api import create_api_router
 from app.api.websocket import websocket_handler, broadcast_worker
 from app.services.camera import CameraService
 from app.worker import InferenceWorker
+from app.models.factory import create_models
+from app.services import InferenceService
 
 logger = get_logger(__name__)
 
@@ -34,6 +36,18 @@ class AppLifecycle:
         logger.info("="*60)
         
         try:
+            # 初始化 state
+            self.state = state
+
+            # 初始化知识库（修复 AttributeError）
+            try:
+                from kb import kb
+                self.state.kb = kb
+                logger.info("✓ 知识库已初始化")
+            except Exception as e:
+                logger.error(f"知识库初始化失败: {e}")
+                self.state.kb = None
+
             # 初始化摄像头服务
             logger.info("初始化摄像头服务...")
             self.camera_service = CameraService()
@@ -55,6 +69,16 @@ class AppLifecycle:
             logger.info("启动广播工作线程...")
             asyncio.create_task(broadcast_worker())
             logger.info("✓ 广播工作线程已启动")
+            
+            # 初始化推理服务
+            logger.info("初始化推理服务...")
+            vision_model, reasoning_model = create_models()
+            self.state.inference_service = InferenceService(
+                vision_model=vision_model,
+                reasoning_model=reasoning_model,
+                kb=self.state.kb,
+            )
+            logger.info("✓ 推理服务已初始化")
             
             logger.info("="*60)
             logger.info("系统启动完成")
