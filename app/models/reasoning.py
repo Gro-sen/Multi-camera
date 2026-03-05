@@ -10,6 +10,7 @@ from app.core import get_logger, config
 from app.models.types import VisionFacts, ReasoningResult, AlarmDecision, Analysis
 from app.core.exceptions import ModelException
 from app.utils import JSONFixer
+from app.models.common_prompt import build_reasoning_prompt
 logger = get_logger(__name__)
 
 
@@ -50,148 +51,39 @@ def extract_json_from_response(response_text: str) -> dict:
 
 class ReasoningModelBase:
     """推理模型基类"""
-    
-    def infer(self, vision_facts: VisionFacts, similar_cases: List[Dict] = None) -> Optional[ReasoningResult]:
-        """执行推理"""
+
+    def infer(self, facts: Dict[str, Any], cases: List[Dict[str, Any]], prompt: str) -> str:
         raise NotImplementedError
 
 
 class AlibabaReasoningModel(ReasoningModelBase):
     """阿里云推理模型"""
-    
+
     def __init__(self, model_name: str = "qwen2.5-7b-instruct"):
         try:
             from app.utils.alibaba_client import AlibabaOpenAIClient
             self.client = AlibabaOpenAIClient()
-            self.model_name = model_name
             self.available = True
         except ImportError:
             logger.warning("阿里云客户端未安装，推理模型不可用")
             self.available = False
-    
-    def infer(self, vision_facts: VisionFacts, similar_cases: List[Dict] = None) -> Optional[ReasoningResult]:
-        """执行推理"""
+        self.model = config.ALIBABA_REASONING_MODEL
+
+    def infer(self, facts: Dict[str, Any], cases: List[Dict[str, Any]], prompt: str) -> str:
         if not self.available:
-            raise ModelException("阿里云推理模型不可用")
-        
+            raise ModelException("推理模型不可用")
+
         try:
-            vision_summary = f"""## 当前画面分析结果：
-- 有人员：{vision_facts.has_person}
-- 工牌状态：{vision_facts.badge_status}
-- 进入禁区：{vision_facts.enter_restricted_area}
-- 火灾/烟雾：{vision_facts.has_fire_or_smoke}
-- 电气风险：{vision_facts.has_electric_risk}
-- 场景描述：{vision_facts.scene_summary}
-"""
-            
-            kb_context = ""
-            if similar_cases and len(similar_cases) > 0:
-                kb_context = "\n## 知识库规则：\n"
-                for case in similar_cases[:3]:
-                    source = case.get('source', '未知')
-                    text = case.get('text', '')
-                    kb_context += f"### 【{source}】\n{text}\n\n"
-            
-            prompt = f"""你是安防系统的决策模块。
-
-**核心原则：严格按照知识库规则执行判断，不得自行放宽或修改条件。**
-
-{vision_summary}
-{kb_context}
-根据知识库规则和当前画面分析结果，输出JSON格式的决策：
-{{
-  "final_decision": {{
-    "is_alarm": "是/否",
-    "alarm_level": "无/一般/严重/紧急",
-    "alarm_reason": "原因",
-    "confidence": 0.0-1.0
-  }},
-  "analysis": {{
-    "risk_assessment": "风险评估",
-    "recommendation": "处置建议",
-    "rules_applied": ["应用的规则"]
-  }}
-}}
-
-只输出JSON，不要其他文字。"""
-            
-            response = self.client.call_api(
-                prompt=prompt,
-                model=self.model_name
-            )
-            
-            logger.info(f"【DEBUG】推理模型原始响应: {response}")
-
-            # 使用统一的 JSON 提取函数
-            result_dict = extract_json_from_response(response)
-            
-            if not result_dict:
-                try:
-                    result_dict = JSONFixer.safe_parse(response)
-                except:
-                    result_dict = {}
-            
-            final_decision_dict = result_dict.get('final_decision', {})
-            analysis_dict = result_dict.get('analysis', {})
-            
-            # 确保有默认值
-            if not final_decision_dict:
-                logger.warning("未能提取 final_decision，使用默认值")
-                final_decision_dict = {
-                    "is_alarm": "否",
-                    "alarm_level": "无",
-                    "alarm_reason": "推理模型响应解析失败",
-                    "confidence": 0.0
-                }
-            
-            result = ReasoningResult(
-                final_decision=AlarmDecision(**final_decision_dict),
-                analysis=Analysis(
-                    risk_assessment=analysis_dict.get('risk_assessment', ''),
-                    recommendation=analysis_dict.get('recommendation', ''),
-                    rules_applied=analysis_dict.get('rules_applied', [])
-                ),
-                metadata={"model": self.model_name, "timestamp": datetime.now().isoformat()}
-            )
-            
-            return result
-            
-        except Exception as e:
-            logger.error(f"阿里云推理失败: {e}", exc_info=True)
-            raise ModelException(f"阿里云推理模型失败: {e}") from e
-
-    def infer(self, facts: dict, cases: list, prompt: str) -> str:
-        """统一接口：facts + cases + prompt"""
-        if not self.available:
-            raise ModelException("阿里云推理模型不可用")
-        try:
-            # 构造 prompt
-            vision_summary = f"""## 当前画面分析结果：
-- 有人员：{facts.get('has_person')}
-- 工牌状态：{facts.get('badge_status')}
-- 进入禁区：{facts.get('enter_restricted_area')}
-- 火灾/烟雾：{facts.get('has_fire_or_smoke')}
-- 电气风险：{facts.get('has_electric_risk')}
-- 场景描述：{facts.get('scene_summary')}
-"""
-            kb_context = ""
-            if cases and len(cases) > 0:
-                kb_context = "\n## 知识库规则：\n"
-                for case in cases[:3]:
-                    source = case.get('source', '未知')
-                    text = case.get('text', '')
-                    kb_context += f"### 【{source}】\n{text}\n\n"
-            final_prompt = f"{prompt}\n{vision_summary}\n{kb_context}"
-
-            response = self.client.call_api(
+            final_prompt = build_reasoning_prompt(prompt, facts, cases)
+            raw_output = self.client.generate(
+                model=self.model,
                 prompt=final_prompt,
-                model=self.model_name
+                options={"temperature": 0.1, "top_p": 0.2},
             )
-            logger.info(f"【DEBUG】推理模型原始响应: {response}")
-            return response
+            return raw_output
         except Exception as e:
-            logger.error(f"阿里云推理失败: {e}", exc_info=True)
-            raise ModelException(f"阿里云推理模型失败: {e}") from e
+            logger.error(f"推理失败: {e}", exc_info=True)
+            raise ModelException(f"推理模型失败: {e}") from e
 
 
 class ReasoningModelFactory:
@@ -203,7 +95,7 @@ class ReasoningModelFactory:
     def get_default_model(cls) -> ReasoningModelBase:
         """获取默认推理模型 - 仅使用阿里云"""
         if "alibaba" not in cls._models:
-            cls._models["alibaba"] = AlibabaReasoningModel(config.REASONING_MODEL)
+            cls._models["alibaba"] = AlibabaReasoningModel(config.ALIBABA_REASONING_MODEL)
         
         model = cls._models["alibaba"]
         if model.available:

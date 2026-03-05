@@ -10,6 +10,7 @@ from app.core import get_logger, config
 from app.models.types import VisionFacts
 from app.core.exceptions import ModelException
 from app.utils import JSONFixer
+from app.models.common_prompt import build_vision_prompt
 logger = get_logger(__name__)
 
 
@@ -32,73 +33,20 @@ class AlibabaVisionModel(VisionModelBase):
         except ImportError:
             logger.warning("阿里云客户端未安装，视觉模型不可用")
             self.available = False
+        self.model = config.ALIBABA_VISION_MODEL
     
-    def frame_to_base64(self, frame) -> str:
-        """将帧转换为Base64编码"""
-        frame = cv2.resize(frame, (640, 360))
-        _, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
-        return base64.b64encode(buf).decode()
-    
-    def analyze(self, frame) -> Optional[VisionFacts]:
-        """使用阿里云API分析帧"""
-        if not self.available:
-            raise ModelException("视觉模型不可用")
-        
-        try:
-            image_b64 = self.frame_to_base64(frame)
-            
-            vision_prompt = """
-你是公司内部安防系统的【视觉感知模块】。
-只输出 JSON，不要解释，不要多余文字。
-格式如下：
-{
-  "has_person": true/false,
-  "badge_status": "佩戴" / "未佩戴" / "无法确认" / "不适用",
-  "enter_restricted_area": true/false,
-  "has_fire_or_smoke": true/false,
-  "has_electric_risk": true/false,
-  "scene_summary": "一句话描述画面",
-  "object_details": {
-    "person_count": 数量,
-    "person_positions": ["位置描述"],
-    "environment_status": "环境状态描述"
-  }
-}
-"""
-            
-            raw_output = self.client.call_multimodal_api(
-                prompt=vision_prompt,
-                image_b64=image_b64,
-                model=config.VISION_MODEL
-            )
-            
-            logger.info(f"【DEBUG】视觉模型原始响应: {raw_output}")
-            
-            # 尝试修复JSON
-            try:
-                vision_dict = JSONFixer.safe_parse(raw_output)
-            except:
-                vision_dict = json.loads(raw_output)
-            
-            vision_facts = VisionFacts(**vision_dict)
-            logger.debug(f"视觉分析完成: {vision_facts.scene_summary}")
-            return vision_facts
-            
-        except Exception as e:
-            logger.error(f"视觉分析失败: {e}", exc_info=True)
-            raise ModelException(f"视觉模型分析失败: {e}") from e
-
     def analyze(self, image_base64: str, prompt: str) -> str:
-        """统一接口：image_base64 + prompt"""
         if not self.available:
             raise ModelException("视觉模型不可用")
+
         try:
-            raw_output = self.client.call_multimodal_api(
-                prompt=prompt,
-                image_b64=image_base64,
-                model=config.VISION_MODEL
+            strict_prompt = build_vision_prompt(prompt)
+            raw_output = self.client.generate(
+                model=self.model,
+                prompt=strict_prompt,
+                images=[image_base64] if image_base64 else None,
+                options={"temperature": 0.1, "top_p": 0.2},
             )
-            logger.info(f"【DEBUG】视觉模型原始响应: {raw_output}")
             return raw_output
         except Exception as e:
             logger.error(f"视觉分析失败: {e}", exc_info=True)

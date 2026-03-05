@@ -28,7 +28,7 @@ class Config:
     
     # ===== RTSP 流配置 =====
     RTSP_URL = os.getenv("RTSP_URL", "rtsp://<user>:<pass>@<ip>:<port>/stream1")
-    RTSP_URL_2 = os.getenv("RTSP_URL_2", "rtsp://<user>:<pass>@<ip>:<port>/stream1")
+    RTSP_URL_2 = os.getenv("RTSP_URL_2", "")
     CAMERA_SOURCES = [
         {
             "id": "cam1",
@@ -48,8 +48,11 @@ class Config:
     MAX_CONCURRENT_INFERENCES = int(os.getenv("MAX_CONCURRENT_INFERENCES", "8"))
     
     # ===== 模型配置 =====
-    VISION_MODEL = "qwen3-vl-8b-thinking"
-    REASONING_MODEL = "qwen2.5-7b-instruct"
+    ALIBABA_VISION_MODEL = os.getenv("ALIBABA_VISION_MODEL", "qwen3-vl-8b-thinking")
+    ALIBABA_REASONING_MODEL = os.getenv("ALIBABA_REASONING_MODEL", "qwen2.5-7b-instruct")
+    OLLAMA_VISION_MODEL = os.getenv("OLLAMA_VISION_MODEL", "qwen3-vl:8b")
+    OLLAMA_REASONING_MODEL = os.getenv("OLLAMA_REASONING_MODEL", "deepseek-r1:7b")
+
     
     # ===== 知识库配置 =====
     KB_SIMILARITY_THRESHOLD = float(os.getenv("KB_SIMILARITY_THRESHOLD", "0.3"))
@@ -80,24 +83,3 @@ class Config:
 
 # 创建全局配置实例
 config = Config()
-
-# 暴露为模块级属性（便于导入）
-APP_TITLE = config.APP_TITLE
-APP_VERSION = config.APP_VERSION
-RTSP_URL = config.RTSP_URL
-CAMERA_SOURCES = config.CAMERA_SOURCES
-INFER_INTERVAL = config.INFER_INTERVAL
-MAX_CONCURRENT_INFERENCES = config.MAX_CONCURRENT_INFERENCES
-VISION_MODEL = config.VISION_MODEL
-REASONING_MODEL = config.REASONING_MODEL
-KB_SIMILARITY_THRESHOLD = config.KB_SIMILARITY_THRESHOLD
-KB_RETRIEVAL_TOP_K = config.KB_RETRIEVAL_TOP_K
-ALARM_CONFIDENCE_THRESHOLD = config.ALARM_CONFIDENCE_THRESHOLD
-ALARM_SOUNDS = config.ALARM_SOUNDS
-LOG_LEVEL = config.LOG_LEVEL
-DEBUG = config.DEBUG
-BASE_DIR = config.BASE_DIR
-ALARM_DIR = config.ALARM_DIR
-SOUND_DIR = config.SOUND_DIR
-LOGS_DIR = config.LOGS_DIR
-KB_DIR = config.KB_DIR

@@ -208,7 +208,7 @@ class InferenceService:
                     "metadata": {
                         "model": "fallback",
                         "timestamp": datetime.now().isoformat(),
-                        "error": str(e)
+                        "error": "empty_reasoning_output"
                     }
                 }
 
@@ -285,7 +285,7 @@ class InferenceService:
                 camera_id=camera_id,
                 vision_facts=vision_facts,
                 analysis=reasoning_result.analysis,
-                model_version=config.REASONING_MODEL,
+                model_version=getattr(self.reasoning_model, "model", "未知"),
             )
             
             # 记录和广播
@@ -336,7 +336,7 @@ class InferenceService:
             "analysis": reasoning_result.analysis.dict(),
             "vision_facts": vision_facts.dict(),
             "metadata": {
-                "reasoning_model": getattr(self.reasoning_model, "model", config.REASONING_MODEL),
+                "reasoning_model": getattr(self.reasoning_model, "model", "未知"),
                 "vision_model": getattr(self.vision_model, "model", "未知"),
                 "kb_cases_used": len(similar_cases) if similar_cases else 0,
                 "kb_total_references": len(similar_cases) if similar_cases else 0,

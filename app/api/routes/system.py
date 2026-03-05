@@ -85,6 +85,14 @@ async def get_system_status():
 async def get_config():
     """获取系统配置"""
     try:
+        provider = os.getenv("MODEL_PROVIDER", "aliyun").lower()
+        if provider == "ollama":
+            vision_model = config.OLLAMA_VISION_MODEL
+            reasoning_model = config.OLLAMA_REASONING_MODEL
+        else:
+            vision_model = config.ALIBABA_VISION_MODEL
+            reasoning_model = config.ALIBABA_REASONING_MODEL
+
         return {
             "rtsp_url": config.RTSP_URL[:30] + "***" if len(config.RTSP_URL) > 30 else config.RTSP_URL,
             "camera_sources": [
@@ -97,9 +105,10 @@ async def get_config():
                 }
                 for camera in config.CAMERA_SOURCES
             ],
+            "model_provider": provider,
             "infer_interval": config.INFER_INTERVAL,
-            "vision_model": config.VISION_MODEL,
-            "reasoning_model": config.REASONING_MODEL,
+            "vision_model": vision_model,
+            "reasoning_model": reasoning_model,
             "kb_similarity_threshold": config.KB_SIMILARITY_THRESHOLD,
             "kb_retrieval_top_k": config.KB_RETRIEVAL_TOP_K,
             "alarm_confidence_threshold": config.ALARM_CONFIDENCE_THRESHOLD,
