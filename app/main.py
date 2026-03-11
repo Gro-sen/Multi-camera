@@ -4,6 +4,8 @@ FastAPI主应用
 import os  
 import asyncio
 import threading
+import time
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket
@@ -16,11 +18,9 @@ from app.api import create_api_router
 from app.api.websocket import websocket_handler, broadcast_worker
 from app.services.camera import CameraService
 from app.worker import InferenceWorker
-from app.models.factory import create_models
-from app.services import InferenceService
-
 logger = get_logger(__name__)
 
+camera_service = CameraService()
 
 class AppLifecycle:
     """应用生命周期管理"""
@@ -68,18 +68,7 @@ class AppLifecycle:
             # 启动广播工作线程
             logger.info("启动广播工作线程...")
             asyncio.create_task(broadcast_worker())
-            logger.info("✓ 广播工作线程已启动")
-            
-            # 初始化推理服务
-            logger.info("初始化推理服务...")
-            vision_model, reasoning_model = create_models()
-            self.state.inference_service = InferenceService(
-                vision_model=vision_model,
-                reasoning_model=reasoning_model,
-                kb=self.state.kb,
-            )
-            logger.info("✓ 推理服务已初始化")
-            
+            logger.info("✓ 广播工作线程已启动")  
             logger.info("="*60)
             logger.info("系统启动完成")
             logger.info("="*60 + "\n")
@@ -113,10 +102,8 @@ class AppLifecycle:
         except Exception as e:
             logger.error(f"关闭过程异常: {e}", exc_info=True)
 
-
 # 生命周期管理实例
 lifecycle = AppLifecycle()
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -157,13 +144,11 @@ try:
 except Exception as e:
     logger.warning(f"⚠ 模板加载失败: {e}")
 
-
 # ===== 基础路由 =====
 @app.get("/")
 async def index(request: Request):
     """首页"""
     return templates.TemplateResponse("index.html", {"request": request})
-
 
 @app.get("/video_feed")
 async def video_feed():
@@ -178,18 +163,15 @@ async def video_feed():
         media_type="multipart/x-mixed-replace; boundary=frame"
     )
 
-
 # ===== WebSocket路由 =====
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     """WebSocket连接端点"""
     await websocket_handler(websocket)
 
-
 # ===== API路由 =====
 api_router = create_api_router()
 app.include_router(api_router)
-
 
 # ===== 错误处理 =====
 @app.exception_handler(Exception)
@@ -201,7 +183,6 @@ async def global_exception_handler(request: Request, exc: Exception):
         "message": str(exc),
         "type": type(exc).__name__
     }
-
 
 if __name__ == "__main__":
     import uvicorn

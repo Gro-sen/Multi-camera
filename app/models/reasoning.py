@@ -85,6 +85,12 @@ class AlibabaReasoningModel(ReasoningModelBase):
             logger.error(f"推理失败: {e}", exc_info=True)
             raise ModelException(f"推理模型失败: {e}") from e
 
+    def close(self):
+        try:
+            if hasattr(self.client, "close"):
+                self.client.close()
+        except Exception:
+            pass
 
 class ReasoningModelFactory:
     """推理模型工厂"""

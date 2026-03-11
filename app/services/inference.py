@@ -13,8 +13,18 @@ from app.models.types import VisionFacts, ReasoningResult, RecognitionRecord, Al
 from app.core.exceptions import InferenceException
 from app.services.alarm import AlarmService
 from app.utils import JSONFixer
+from multiprocessing import Process, Queue
+from sentence_transformers import SentenceTransformer
 logger = get_logger(__name__)
 
+def analyze_worker(camera_id, frame_queue, result_queue):
+    inference_service = InferenceService()
+    while True:
+        frame = frame_queue.get()
+        if frame is None:
+            break
+        result = inference_service.infer(frame, camera_id)
+        result_queue.put((camera_id, result))
 
 class InferenceService:
     """推理服务"""
@@ -239,26 +249,30 @@ class InferenceService:
     
     def infer(self, frame, camera_id: Optional[str] = None, broadcast: bool = True) -> Optional[RecognitionRecord]:
         """完整推理流程"""
+        # 诊断：记录推理请求
+        logger.info(f"[diagnostic] 请求推理 camera={camera_id}")
+
         # 获取推理锁（防止并发推理）
         if not state.acquire_inference_lock(timeout=0.5):
-            logger.debug("推理锁获取失败，跳过本次推理")
+            logger.info(f"[diagnostic] 推理锁获取失败，跳过本次推理 camera={camera_id}")
             return None
+        logger.info(f"[diagnostic] 推理锁已获取 camera={camera_id}")
         
         try:
             start_time = time.time()
             
             # 第一阶段：视觉分析
-            logger.info("开始视觉分析...")
+            logger.info("[diagnostic] 开始视觉分析...")
             vision_facts = self.analyze_vision(frame)
             if vision_facts is None:
                 return None
             
             # 第二阶段：知识库查询
-            logger.info("查询知识库...")
+            logger.info("[diagnostic] 查询知识库...")
             similar_cases = self.get_similar_cases(vision_facts)
             
             # 第三阶段：推理分析
-            logger.info("执行推理...")
+            logger.info("[diagnostic] 执行推理...")
             reasoning_result = self.reasoning_inference(vision_facts, similar_cases)
             if reasoning_result is None:
                 return None
@@ -305,6 +319,7 @@ class InferenceService:
             
             elapsed = time.time() - start_time
             logger.info(f"推理完成 ({elapsed:.2f}s): {final_decision.alarm_level}级警报 (置信度: {final_decision.confidence:.2f})")
+            logger.info(f"[diagnostic] 推理返回 camera={camera_id} elapsed={elapsed:.2f}s alarm_level={final_decision.alarm_level} confidence={final_decision.confidence:.2f}")
             
             return record
             
@@ -313,15 +328,14 @@ class InferenceService:
             return None
         finally:
             state.release_inference_lock()
-            if camera_id:
-                state.update_infer_time(camera_id, time.time())
-
-    def _save_to_knowledge_base(self, record: RecognitionRecord, vision_facts: VisionFacts, 
+            # 注意：不在这里更新 last_infer_time，采样时间由 worker 在调度时设置（避免与推理耗时耦合）
+    
+    def _save_to_knowledge_base(self, record: RecognitionRecord, vision_facts: VisionFacts,
                                  reasoning_result: ReasoningResult, similar_cases: list) -> None:
-        """将报警案例保存到知识库"""
+        """将报警案例保存到知识库（封装成 case_data 并调用 kb.add_case）"""
         if self.kb is None:
             return
-        
+
         case_data = {
             "case_id": record.case_id,
             "timestamp": record.timestamp,
@@ -332,9 +346,9 @@ class InferenceService:
             "is_alarm": record.is_alarm,
             "confidence": record.confidence,
             "image_path": record.image_path,
-            "final_decision": reasoning_result.final_decision.dict(),
-            "analysis": reasoning_result.analysis.dict(),
-            "vision_facts": vision_facts.dict(),
+            "final_decision": reasoning_result.final_decision.dict() if hasattr(reasoning_result, "final_decision") else {},
+            "analysis": reasoning_result.analysis.dict() if hasattr(reasoning_result, "analysis") else {},
+            "vision_facts": vision_facts.dict() if hasattr(vision_facts, "dict") else {},
             "metadata": {
                 "reasoning_model": getattr(self.reasoning_model, "model", "未知"),
                 "vision_model": getattr(self.vision_model, "model", "未知"),
@@ -342,6 +356,9 @@ class InferenceService:
                 "kb_total_references": len(similar_cases) if similar_cases else 0,
             }
         }
-        
-        self.kb.add_case(case_data)
-        logger.info(f"报警案例已写入知识库: {record.alarm_level}")
+
+        try:
+            self.kb.add_case(case_data)
+            logger.info(f"报警案例已写入知识库: {record.alarm_level}")
+        except Exception as e:
+            logger.warning(f"写入知识库失败（内部）: {e}")

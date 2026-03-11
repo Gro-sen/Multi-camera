@@ -52,6 +52,12 @@ class AlibabaVisionModel(VisionModelBase):
             logger.error(f"视觉分析失败: {e}", exc_info=True)
             raise ModelException(f"视觉模型分析失败: {e}") from e
 
+    def close(self):
+        try:
+            if hasattr(self.client, "close"):
+                self.client.close()
+        except Exception:
+            pass
 
 class VisionModelFactory:
     """视觉模型工厂"""

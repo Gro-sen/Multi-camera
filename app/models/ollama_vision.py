@@ -1,10 +1,21 @@
 import os
-from app.core import get_logger,config
+import re
+from app.core import get_logger, config
 from app.core.exceptions import ModelException
 from app.models.common_prompt import build_vision_prompt
 from app.utils.ollama_client import OllamaClient
 
 logger = get_logger(__name__)
+
+
+def _clean_ollama_response(text: str) -> str:
+    if not text:
+        return ""
+    m = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL | re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
+    return text.strip().strip("`").strip()
+
 
 class OllamaVisionModel:
     def __init__(self):
@@ -28,6 +39,8 @@ class OllamaVisionModel:
                     model=self.model,
                     prompt=strict_prompt,
                     images=images,
+                    timeout=int(os.getenv("OLLAMA_TIMEOUT", "60")),
+                    max_retries=int(os.getenv("OLLAMA_MAX_RETRIES", "3")),
                 )
             except TypeError:
                 raw_output = self.client.generate(
@@ -36,7 +49,15 @@ class OllamaVisionModel:
                     images=images,
                 )
             logger.info(f"【DEBUG】Ollama视觉原始响应: {raw_output}")
-            return raw_output
+            cleaned = _clean_ollama_response(raw_output)
+            return cleaned
         except Exception as e:
             logger.error(f"Ollama视觉分析失败: {e}", exc_info=True)
             raise ModelException(f"Ollama视觉模型分析失败: {e}") from e
+
+    def close(self):
+        try:
+            if hasattr(self.client, "close"):
+                self.client.close()
+        except Exception:
+            pass

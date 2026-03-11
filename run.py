@@ -44,4 +44,4 @@ if __name__ == "__main__":
 
     # 延迟导入，确保上面的环境变量先设置
     import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=False) 

@@ -309,13 +309,9 @@
         </div>
 
         <div class="results-section">
-            <h2 class="section-title">安防监控结果</h2>
-            <div class="results-container" id="resultsContainer">
-                <div class="status" id="initialStatus">
-                    <p>🔄 等待识别结果...</p>
-                    <p style="font-size: 0.8em; margin-top: 10px;">系统正在分析视频内容，请稍候</p>
-                </div>
-            </div>
+            <h2 class="section-title">分析结果</h2>
+            <div class="results-container" id="resultsContainerCam1"></div>
+            <div class="results-container" id="resultsContainerCam2"></div>
         </div>
     </div>
 
@@ -390,31 +386,34 @@
             console.log('开始渲染结果:', result);  
             const resultElement = document.createElement('div');
             resultElement.className = 'result-item';
-            
+
             // 使用 markdown 渲染器处理内容
             const renderedContent = markdownRenderer.renderResultContent(result);
-            
+
             const cameraLabel = result.camera_id ? `📷 ${result.camera_id} ` : '';
             resultElement.innerHTML = `
                 <div class="result-time">${cameraLabel}🕒 ${result.timestamp || new Date().toLocaleTimeString()}</div>
                 <div class="result-content">${renderedContent}</div>
             `;
 
-            resultsContainer.insertBefore(resultElement, resultsContainer.firstChild);
+            // 按摄像头分发到不同容器
+            if (result.camera_id === 'cam1') {
+                resultsContainerCam1.insertBefore(resultElement, resultsContainerCam1.firstChild);
+            } else if (result.camera_id === 'cam2') {
+                resultsContainerCam2.insertBefore(resultElement, resultsContainerCam2.firstChild);
+            }
 
             // 初始化代码高亮
             if (typeof hljs !== 'undefined') {
                 hljs.highlightAll();
             }
 
-            // 保持最多显示20个结果
-            const items = resultsContainer.querySelectorAll('.result-item');
-            if (items.length > 20) {
-                items[items.length - 1].remove();
-            }
-
             // 自动滚动到顶部显示最新结果
-            resultsContainer.scrollTop = 0;
+            if (result.camera_id === 'cam1') {
+                resultsContainerCam1.scrollTop = 0;
+            } else if (result.camera_id === 'cam2') {
+                resultsContainerCam2.scrollTop = 0;
+            }
         }
 
         function renderCameras(cameras) {

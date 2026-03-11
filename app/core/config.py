@@ -45,7 +45,7 @@ class Config:
     
     # ===== 推理参数 =====
     INFER_INTERVAL = float(os.getenv("INFER_INTERVAL", "2.0"))  # 秒
-    MAX_CONCURRENT_INFERENCES = int(os.getenv("MAX_CONCURRENT_INFERENCES", "8"))
+    MAX_CONCURRENT_INFERENCES = int(os.getenv("MAX_CONCURRENT_INFERENCES", "4"))
     
     # ===== 模型配置 =====
     ALIBABA_VISION_MODEL = os.getenv("ALIBABA_VISION_MODEL", "qwen3-vl-8b-thinking")
@@ -58,6 +58,7 @@ class Config:
     KB_SIMILARITY_THRESHOLD = float(os.getenv("KB_SIMILARITY_THRESHOLD", "0.3"))
     KB_RETRIEVAL_TOP_K = int(os.getenv("KB_RETRIEVAL_TOP_K", "3"))
     KB_CHUNK_SIZE = 500  # 知识库分块大小
+    KB_INDEX_UPDATE_THRESHOLD = int(os.getenv("KB_INDEX_UPDATE_THRESHOLD", "20"))
     
     # ===== 报警配置 =====
     ALARM_CONFIDENCE_THRESHOLD = float(os.getenv("ALARM_CONFIDENCE_THRESHOLD", "0.6"))
