@@ -3,6 +3,8 @@
 """
 import threading
 import queue
+from collections import deque
+from statistics import median
 from typing import List, Dict, Any, Optional
 import cv2
 import numpy as np
@@ -60,8 +62,15 @@ class AppState:
         
         # ===== 推理管理 =====
         self.inference_lock = threading.Lock()
-        self.inference_semaphore = threading.Semaphore(app_config.MAX_CONCURRENT_INFERENCES)
+        self.vision_model = None
+        self.reasoning_model = None
+        self.camera_inference_locks: Dict[str, threading.Semaphore] = {}
         self.last_infer_times: Dict[str, float] = {}
+        self.active_inferences: Dict[str, float] = {}  # camera_id -> 开始推理的时间戳
+        self.active_lock = threading.Lock()
+        self.inference_latencies: Dict[str, deque] = {}
+        self.latency_lock = threading.Lock()
+        self.global_inference_latencies: deque = deque(maxlen=500)
         
         # ===== 通信 =====
         self.broadcast_queue: queue.Queue = queue.Queue()
@@ -90,6 +99,8 @@ class AppState:
             self.camera_ids.append(camera_id)
         if camera_id not in self.last_infer_times:
             self.last_infer_times[camera_id] = 0.0
+        if camera_id not in self.inference_latencies:
+            self.inference_latencies[camera_id] = deque(maxlen=200)
 
     def update_frame(self, camera_id: str, frame: np.ndarray) -> None:
         """更新指定摄像头帧"""
@@ -121,13 +132,38 @@ class AppState:
             return None
     
     # ===== 推理管理 =====
-    def acquire_inference_lock(self, timeout: float = 0.1) -> bool:
-        """尝试获取推理锁"""
-        return self.inference_semaphore.acquire(timeout=timeout)
+    def init_models(self) -> None:
+        """系统启动时预加载模型（全局共享）"""
+        if self.vision_model is not None and self.reasoning_model is not None:
+            return  # 已初始化
+        
+        try:
+            from app.models.factory import create_models
+            self.vision_model, self.reasoning_model = create_models()
+            from app.core import get_logger
+            logger = get_logger(__name__)
+            logger.info("✓ 全局模型已预加载并缓存")
+        except Exception as e:
+            from app.core import get_logger
+            logger = get_logger(__name__)
+            logger.error(f"模型预加载失败: {e}", exc_info=True)
+            raise
     
-    def release_inference_lock(self) -> None:
-        """释放推理锁"""
-        self.inference_semaphore.release()
+    def acquire_camera_lock(self, camera_id: str, timeout: float = 2.0) -> bool:
+        """尝试获取摄像头推理锁（每摄像头独立）"""
+        if camera_id not in self.camera_inference_locks:
+            with self.inference_lock:
+                if camera_id not in self.camera_inference_locks:
+                    self.camera_inference_locks[camera_id] = threading.Semaphore(1)
+        return self.camera_inference_locks[camera_id].acquire(timeout=timeout)
+    
+    def release_camera_lock(self, camera_id: str) -> None:
+        """释放摄像头推理锁"""
+        if camera_id in self.camera_inference_locks:
+            try:
+                self.camera_inference_locks[camera_id].release()
+            except ValueError:
+                pass  # 无需释放
     
     def update_infer_time(self, camera_id: str, timestamp: float) -> None:
         """更新最后推理时间"""
@@ -142,6 +178,96 @@ class AppState:
     def get_camera_ids(self) -> List[str]:
         """获取已注册摄像头ID列表"""
         return list(self.camera_ids)
+
+    def mark_inference_start(self, camera_id: str) -> None:
+        """标记推理开始"""
+        import time
+        with self.active_lock:
+            self.active_inferences[camera_id] = time.time()
+
+    def mark_inference_end(self, camera_id: str) -> None:
+        """标记推理结束"""
+        with self.active_lock:
+            self.active_inferences.pop(camera_id, None)
+
+    def get_active_inferences_count(self) -> int:
+        """获取当前活跃推理任务数"""
+        with self.active_lock:
+            return len(self.active_inferences)
+
+    def get_active_inferences_info(self) -> str:
+        """获取活跃推理任务信息"""
+        import time
+        with self.active_lock:
+            if not self.active_inferences:
+                return "无活跃推理"
+            info_parts = []
+            now = time.time()
+            for cid, start_time in self.active_inferences.items():
+                elapsed = now - start_time
+                info_parts.append(f"{cid}({elapsed:.1f}s)")
+            return f"活跃推理[count={len(self.active_inferences)}]: {', '.join(info_parts)}"
+
+    def record_inference_latency(self, camera_id: Optional[str], elapsed: float) -> None:
+        """记录推理耗时样本"""
+        if elapsed is None:
+            return
+        elapsed = float(elapsed)
+        if elapsed < 0:
+            return
+
+        with self.latency_lock:
+            if camera_id:
+                if camera_id not in self.inference_latencies:
+                    self.inference_latencies[camera_id] = deque(maxlen=200)
+                self.inference_latencies[camera_id].append(elapsed)
+            self.global_inference_latencies.append(elapsed)
+
+    def _percentile(self, values: List[float], percentile: float) -> float:
+        """计算百分位数"""
+        if not values:
+            return 0.0
+        if len(values) == 1:
+            return float(values[0])
+
+        ordered = sorted(values)
+        position = (len(ordered) - 1) * percentile
+        lower_index = int(position)
+        upper_index = min(lower_index + 1, len(ordered) - 1)
+        if lower_index == upper_index:
+            return float(ordered[lower_index])
+
+        lower_value = ordered[lower_index]
+        upper_value = ordered[upper_index]
+        return float(lower_value + (upper_value - lower_value) * (position - lower_index))
+
+    def get_inference_latency_stats(self, camera_id: Optional[str] = None) -> Dict[str, Any]:
+        """获取推理耗时统计"""
+        with self.latency_lock:
+            if camera_id:
+                samples = list(self.inference_latencies.get(camera_id, []))
+            else:
+                samples = list(self.global_inference_latencies)
+
+        if not samples:
+            return {
+                "count": 0,
+                "avg": 0.0,
+                "p50": 0.0,
+                "p95": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+            }
+
+        total = sum(samples)
+        return {
+            "count": len(samples),
+            "avg": total / len(samples),
+            "p50": self._percentile(samples, 0.50),
+            "p95": self._percentile(samples, 0.95),
+            "min": min(samples),
+            "max": max(samples),
+        }
     
     # ===== 结果管理 =====
     def add_recognition_result(self, result: Dict[str, Any]) -> None:

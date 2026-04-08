@@ -21,8 +21,18 @@ _camera_service: CameraService = None
 def get_camera_service() -> CameraService:
     """获取摄像头服务（延迟初始化）"""
     global _camera_service
-    if _camera_service is None:
-        _camera_service = CameraService()
+    if _camera_service is not None:
+        return _camera_service
+
+    try:
+        from app.main import lifecycle
+        if getattr(lifecycle, "camera_service", None) is not None:
+            _camera_service = lifecycle.camera_service
+            return _camera_service
+    except Exception as e:
+        logger.debug(f"从 lifecycle 获取摄像头服务失败: {e}")
+
+    _camera_service = CameraService()
     return _camera_service
 
 
@@ -123,6 +133,26 @@ async def health_check():
     """健康检查"""
     try:
         # 检查关键组件
+        camera_service = get_camera_service()
+        camera_stats_map = camera_service.get_all_stats()
+        active_count = state.get_active_inferences_count()
+        queue_backlog = state.broadcast_queue.qsize()
+        global_latency = state.get_inference_latency_stats()
+
+        cameras = []
+        for camera_id, stats in camera_stats_map.items():
+            latency_stats = state.get_inference_latency_stats(camera_id)
+            cameras.append({
+                "camera_id": camera_id,
+                "fps": stats.fps,
+                "frame_delay_seconds": stats.frame_delay_seconds,
+                "is_connected": stats.is_connected,
+                "connection_status": stats.connection_status,
+                "frames_received": stats.frames_received,
+                "connection_errors": stats.connection_errors,
+                "latency": latency_stats,
+            })
+
         health = {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
@@ -131,13 +161,17 @@ async def health_check():
                 "models": "unknown",
                 "knowledge_base": "unknown",
             }
+            ,"metrics": {
+                "active_tasks": active_count,
+                "queue_backlog": queue_backlog,
+                "inference_latency": global_latency,
+                "cameras": cameras,
+            }
         }
         
         # 检查摄像头
         try:
-            camera_service = get_camera_service()
-            stats_map = camera_service.get_all_stats()
-            has_frames = any(stats.frames_received > 0 for stats in stats_map.values())
+            has_frames = any(stats.frames_received > 0 for stats in camera_stats_map.values())
             health["components"]["camera"] = "healthy" if has_frames else "unhealthy"
         except:
             health["components"]["camera"] = "error"
@@ -152,11 +186,13 @@ async def health_check():
         
         # 检查模型
         try:
-            from app.models import VisionModelFactory, ReasoningModelFactory
-            vision_model = VisionModelFactory.get_default_model()
-            reasoning_model = ReasoningModelFactory.get_default_model()
-            health["components"]["models"] = "healthy"
-        except:
+            # 使用启动阶段已加载的全局模型实例，避免健康检查再次触发模型工厂
+            # （否则会打印“使用阿里云模型”的误导日志）
+            if state.vision_model is not None and state.reasoning_model is not None:
+                health["components"]["models"] = "healthy"
+            else:
+                health["components"]["models"] = "unhealthy"
+        except Exception:
             health["components"]["models"] = "error"
         
         # 总体状态

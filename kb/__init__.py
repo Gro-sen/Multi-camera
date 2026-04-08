@@ -29,11 +29,12 @@ class KnowledgeBase:
         
         self.base_dir = str(base_path)
         self.source_dir = os.path.join(self.base_dir, "source")
+        self.pend_dir = os.path.join(self.base_dir, "pend")
         self.index_dir = os.path.join(self.base_dir, "index")
         self.cases_dir = os.path.join(self.base_dir, "cases")
         
         # 创建必要的目录
-        for dir_path in [self.source_dir, self.index_dir, self.cases_dir]:
+        for dir_path in [self.source_dir, self.pend_dir, self.index_dir, self.cases_dir]:
             os.makedirs(dir_path, exist_ok=True)
         
         logger.debug(f"知识库已初始化: {self.base_dir}")
@@ -67,8 +68,8 @@ class KnowledgeBase:
         
         # 同时写入Markdown格式（供索引）
         try:
-            from .auto_writer import write_alarm_case_to_kb
-            write_alarm_case_to_kb(case_data)
+            from .auto_writer import write_case_to_pend
+            write_case_to_pend(case_data)
         except Exception as e:
             logger.warning(f"写入自动文件失败: {e}")
         

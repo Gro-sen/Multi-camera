@@ -73,7 +73,7 @@ class Config:
     # ===== 摄像头配置 =====
     RTSP_BUFFER_SIZE = 1024000
     RTSP_MAX_DELAY = 500000
-    RTSP_TIMEOUT = 5000000
+    RTSP_TIMEOUT = int(os.getenv("RTSP_TIMEOUT", "1000000"))
     
     # ===== 日志配置 =====
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

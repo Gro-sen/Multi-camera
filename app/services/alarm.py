@@ -104,10 +104,24 @@ class AlarmService:
         }
         state.queue_broadcast_message(message)
 
-    def record_inference_time(self, final_decision, elapsed: float) -> None:
+    def record_inference_time(self, final_decision, elapsed: float, camera_id: Optional[str] = None) -> None:
         """记录推理耗时（占位实现，便于后续统计）"""
         try:
-            # 这里可以接入日志/指标系统
-            logger.info(f"推理耗时: {elapsed:.3f}s, 报警: {final_decision.get('is_alarm')}, 等级: {final_decision.get('alarm_level')}")
+            from app.core import state
+
+            if hasattr(final_decision, "dict"):
+                decision_dict = final_decision.dict()
+            elif isinstance(final_decision, dict):
+                decision_dict = final_decision
+            else:
+                decision_dict = {
+                    "is_alarm": getattr(final_decision, "is_alarm", None),
+                    "alarm_level": getattr(final_decision, "alarm_level", None),
+                }
+
+            state.record_inference_latency(camera_id, elapsed)
+            logger.info(
+                f"推理耗时: {elapsed:.3f}s, 报警: {decision_dict.get('is_alarm')}, 等级: {decision_dict.get('alarm_level')}"
+            )
         except Exception:
             pass

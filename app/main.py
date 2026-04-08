@@ -38,6 +38,11 @@ class AppLifecycle:
         try:
             # 初始化 state
             self.state = state
+            
+            # 预加载全局模型（所有摄像头共用）
+            logger.info("预加载推理模型...")
+            self.state.init_models()
+            logger.info("✓ 推理模型已预加载")
 
             # 初始化知识库（修复 AttributeError）
             try:

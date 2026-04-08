@@ -252,11 +252,17 @@ class InferenceService:
         # 诊断：记录推理请求
         logger.info(f"[diagnostic] 请求推理 camera={camera_id}")
 
-        # 获取推理锁（防止并发推理）
-        if not state.acquire_inference_lock(timeout=0.5):
-            logger.info(f"[diagnostic] 推理锁获取失败，跳过本次推理 camera={camera_id}")
+        # 获取摄像头独立推理锁（允许不同摄像头真正并发）
+        if not state.acquire_camera_lock(camera_id, timeout=2.0):
+            logger.info(f"[diagnostic] 推理锁获取失败（摄像头可能前一个推理还未完成）camera={camera_id}")
             return None
         logger.info(f"[diagnostic] 推理锁已获取 camera={camera_id}")
+        
+        # 标记推理开始
+        state.mark_inference_start(camera_id)
+        active_count = state.get_active_inferences_count()
+        active_info = state.get_active_inferences_info()
+        logger.info(f"[diagnostic][并发监控] {camera_id} 推理开始 | 当前活跃={active_count} | {active_info}")
         
         try:
             start_time = time.time()
@@ -307,15 +313,14 @@ class InferenceService:
             if broadcast:
                 self.alarm_service.broadcast_alarm(record)
             
-            # 🔥 新增：如果是报警，写入知识库
-            if final_decision.is_alarm == "是" and final_decision.alarm_level != "无":
-                try:
-                    self._save_to_knowledge_base(record, vision_facts, reasoning_result, similar_cases)
-                except Exception as e:
-                    logger.warning(f"写入知识库失败: {e}")
+            # 写入待审核案例池（报警/正常都落盘，不自动重建索引）
+            try:
+                self._save_to_knowledge_base(record, vision_facts, reasoning_result, similar_cases)
+            except Exception as e:
+                logger.warning(f"写入待审核案例失败: {e}")
             
             # 记录推理耗时
-            self.alarm_service.record_inference_time(final_decision, time.time() - start_time)
+            self.alarm_service.record_inference_time(final_decision, time.time() - start_time, camera_id=camera_id)
             
             elapsed = time.time() - start_time
             logger.info(f"推理完成 ({elapsed:.2f}s): {final_decision.alarm_level}级警报 (置信度: {final_decision.confidence:.2f})")
@@ -327,12 +332,16 @@ class InferenceService:
             logger.error(f"推理流程异常: {e}", exc_info=True)
             return None
         finally:
-            state.release_inference_lock()
+            state.release_camera_lock(camera_id)
             # 注意：不在这里更新 last_infer_time，采样时间由 worker 在调度时设置（避免与推理耗时耦合）
+            state.mark_inference_end(camera_id)
+            active_count = state.get_active_inferences_count()
+            active_info = state.get_active_inferences_info()
+            logger.info(f"[diagnostic][并发监控] {camera_id} 推理结束 | 剩余活跃={active_count} | {active_info}")
     
     def _save_to_knowledge_base(self, record: RecognitionRecord, vision_facts: VisionFacts,
                                  reasoning_result: ReasoningResult, similar_cases: list) -> None:
-        """将报警案例保存到知识库（封装成 case_data 并调用 kb.add_case）"""
+        """将推理案例保存到待审核案例池（封装成 case_data 并调用 kb.add_case）"""
         if self.kb is None:
             return
 
@@ -359,6 +368,6 @@ class InferenceService:
 
         try:
             self.kb.add_case(case_data)
-            logger.info(f"报警案例已写入知识库: {record.alarm_level}")
+            logger.info(f"案例已写入待审核池: is_alarm={record.is_alarm} level={record.alarm_level}")
         except Exception as e:
             logger.warning(f"写入知识库失败（内部）: {e}")

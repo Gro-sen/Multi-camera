@@ -116,10 +116,12 @@ class RecognitionRecord(BaseModel):
 class CameraStats(BaseModel):
     """摄像头统计信息"""
     is_connected: bool
+    connection_status: str = "offline"
     frames_received: int
     connection_errors: int
     fps: float
     uptime_seconds: float
+    frame_delay_seconds: float = 0.0
     last_frame_time: Optional[str] = None
     last_error_time: Optional[str] = None
     last_error_message: Optional[str] = None

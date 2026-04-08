@@ -181,6 +181,7 @@ class InferenceWorker:
 
                     records = []
                     for future in as_completed(futures):
+                        now = time.time()
                         try:
                             record = future.result()
                         except Exception as e:
@@ -188,6 +189,7 @@ class InferenceWorker:
                             record = None
                         if record:
                             records.append(record)
+                            logger.info(f"[diagnostic][并发监控] 任务完成: {record.camera_id} | 时间={now:.3f} | 活跃={state.get_active_inferences_count()}")
                             logger.info(f"推理完成: {record.camera_id} {record.alarm_level}级警报")
 
                     if records:
@@ -204,28 +206,21 @@ class InferenceWorker:
             logger.info("推理循环已退出")
 
     def _get_service_for_camera(self, camera_id: str) -> InferenceService:
-        """按摄像头按需创建独立的 InferenceService 实例并缓存"""
+        """按摄像头按需创建独立的 InferenceService 实例并缓存（复用全局模型）"""
         if camera_id in self.services:
             return self.services[camera_id]
 
         try:
-            vision_model, reasoning_model = create_models()
+            # ✅ 使用全局预加载的模型，避免重复加载
             svc = InferenceService(
-                vision_model=vision_model,
-                reasoning_model=reasoning_model,
+                vision_model=state.vision_model,
+                reasoning_model=state.reasoning_model,
                 kb=state.kb
             )
             self.services[camera_id] = svc
-            logger.info(f"为摄像头 {camera_id} 创建独立推理实例")
+            logger.info(f"为摄像头 {camera_id} 创建推理服务实例（复用全局模型）")
             logger.info(f"[diagnostic] 已创建服务：camera={camera_id} current_services={list(self.services.keys())}")
             return svc
         except Exception as e:
-            logger.error(f"为摄像头 {camera_id} 创建模型实例失败: {e}", exc_info=True)
-            # 回退：尝试使用共享实例（懒创建）
-            if "shared" not in self.services:
-                try:
-                    self.services["shared"] = InferenceService(kb=state.kb)
-                except Exception as ex:
-                    logger.error(f"创建共享推理实例失败: {ex}", exc_info=True)
-                    raise
-            return self.services["shared"]
+            logger.error(f"为摄像头 {camera_id} 创建推理服务失败: {e}", exc_info=True)
+            raise
