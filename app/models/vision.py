@@ -3,6 +3,7 @@
 """
 import base64
 import json
+import os
 from typing import Optional, Dict, Any
 import cv2
 
@@ -12,6 +13,15 @@ from app.core.exceptions import ModelException
 from app.utils import JSONFixer
 from app.models.common_prompt import build_vision_prompt
 logger = get_logger(__name__)
+
+
+def _clip_text(text: str, limit: int) -> str:
+    if text is None:
+        return ""
+    s = str(text)
+    if len(s) <= limit:
+        return s
+    return f"{s[:limit]} ...[truncated {len(s) - limit} chars]"
 
 
 class VisionModelBase:
@@ -33,13 +43,16 @@ class AlibabaVisionModel(VisionModelBase):
         except ImportError:
             logger.warning("阿里云客户端未安装，视觉模型不可用")
             self.available = False
-        self.model = config.ALIBABA_VISION_MODEL
+
+    def _get_model_name(self) -> str:
+        return os.getenv("ALIBABA_VISION_MODEL", config.ALIBABA_VISION_MODEL)
     
     def analyze(self, image_base64: str, prompt: str) -> str:
         if not self.available:
             raise ModelException("视觉模型不可用")
 
         try:
+            self.model = self._get_model_name()
             strict_prompt = build_vision_prompt(prompt)
             raw_output = self.client.generate(
                 model=self.model,
@@ -47,6 +60,12 @@ class AlibabaVisionModel(VisionModelBase):
                 images=[image_base64] if image_base64 else None,
                 options={"temperature": 0.1, "top_p": 0.2},
             )
+            if config.LLM_OUTPUT_LOG_ENABLED:
+                logger.info(
+                    "视觉模型输出[%s]: %s",
+                    self.model,
+                    _clip_text(raw_output, config.LLM_OUTPUT_LOG_MAX_CHARS),
+                )
             return raw_output
         except Exception as e:
             logger.error(f"视觉分析失败: {e}", exc_info=True)

@@ -8,6 +8,15 @@ from app.utils.ollama_client import OllamaClient
 logger = get_logger(__name__)
 
 
+def _clip_text(text: str, limit: int) -> str:
+    if text is None:
+        return ""
+    s = str(text)
+    if len(s) <= limit:
+        return s
+    return f"{s[:limit]} ...[truncated {len(s) - limit} chars]"
+
+
 def _clean_ollama_response(text: str) -> str:
     if not text:
         return ""
@@ -24,12 +33,15 @@ class OllamaVisionModel:
             self.available = True
         except Exception:
             self.available = False
-        self.model = config.OLLAMA_VISION_MODEL
+
+    def _get_model_name(self) -> str:
+        return os.getenv("OLLAMA_VISION_MODEL", config.OLLAMA_VISION_MODEL)
 
     def analyze(self, image_base64: str, prompt: str) -> str:
         if not self.available:
             raise ModelException("视觉模型不可用")
 
+        self.model = self._get_model_name()
         strict_prompt = build_vision_prompt(prompt)
         images = [image_base64] if image_base64 else None
 
@@ -48,8 +60,15 @@ class OllamaVisionModel:
                     prompt=strict_prompt,
                     images=images,
                 )
-            logger.info(f"【DEBUG】Ollama视觉原始响应: {raw_output}")
+            if config.DEBUG:
+                logger.debug("Ollama视觉原始响应: %s", raw_output)
             cleaned = _clean_ollama_response(raw_output)
+            if config.LLM_OUTPUT_LOG_ENABLED:
+                logger.info(
+                    "Ollama视觉模型输出[%s]: %s",
+                    self.model,
+                    _clip_text(cleaned, config.LLM_OUTPUT_LOG_MAX_CHARS),
+                )
             return cleaned
         except Exception as e:
             logger.error(f"Ollama视觉分析失败: {e}", exc_info=True)

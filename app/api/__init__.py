@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .routes import video, alarms, system, knowledge
+from .routes import video, alarms, system, knowledge, faces
 
 def create_api_router() -> APIRouter:
     """创建API路由器"""
@@ -10,6 +10,7 @@ def create_api_router() -> APIRouter:
     router.include_router(alarms.router)
     router.include_router(system.router)
     router.include_router(knowledge.router)
+    router.include_router(faces.router)
     
     return router
 

@@ -95,9 +95,21 @@ class ReasoningResult(BaseModel):
     metadata: Dict[str, Any] = {}
 
 
+class FaceRecognitionResult(BaseModel):
+    """人脸识别结果"""
+    enabled: bool = False
+    detected_faces: int = 0
+    matched: bool = False
+    best_match_name: Optional[str] = None
+    best_similarity: float = 0.0
+    threshold: float = 0.45
+    error: Optional[str] = None
+
+
 class RecognitionRecord(BaseModel):
     """识别记录"""
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+    frame_timestamp: Optional[str] = None
     case_id: Optional[str] = None
     camera_id: Optional[str] = None
     is_alarm: str
@@ -107,6 +119,7 @@ class RecognitionRecord(BaseModel):
     image_path: Optional[str] = None
     vision_facts: Optional[VisionFacts] = None
     analysis: Optional[Analysis] = None
+    face_recognition: Optional[FaceRecognitionResult] = None
     model_version: Optional[str] = None
     
     class Config:

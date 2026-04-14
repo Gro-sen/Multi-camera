@@ -44,6 +44,11 @@ class AppLifecycle:
             self.state.init_models()
             logger.info("✓ 推理模型已预加载")
 
+            # 预加载全局人脸识别服务（所有摄像头共用）
+            logger.info("预加载人脸识别服务...")
+            self.state.init_face_service()
+            logger.info("✓ 人脸识别服务已预加载")
+
             # 初始化知识库（修复 AttributeError）
             try:
                 from kb import kb

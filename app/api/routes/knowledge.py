@@ -240,3 +240,130 @@ async def import_pend_files(payload: dict):
     except Exception as e:
         logger.error(f"导入待审核文件失败: {e}")
         raise HTTPException(status_code=500, detail="导入待审核文件失败")
+
+
+@router.get("/source-files")
+async def list_source_files():
+    """列出现有知识库 source 目录中的规则文件"""
+    try:
+        _, source_dir = _get_kb_dirs()
+        files = []
+
+        for p in sorted(source_dir.glob("*.md"), key=lambda x: x.stat().st_mtime, reverse=True):
+            stat = p.stat()
+            files.append({
+                "name": p.name,
+                "size": stat.st_size,
+                "modified_time": stat.st_mtime,
+            })
+
+        return {
+            "status": "success",
+            "count": len(files),
+            "files": files,
+        }
+    except Exception as e:
+        logger.error(f"获取现有知识库文件失败: {e}")
+        raise HTTPException(status_code=500, detail="获取现有知识库文件失败")
+
+
+@router.get("/source-preview")
+async def get_source_file_preview(name: str = Query(..., description="source 文件名")):
+    """预览 source 目录中的 markdown 文件内容"""
+    try:
+        safe_name = Path(name).name
+        if safe_name != name or not safe_name.lower().endswith(".md"):
+            raise HTTPException(status_code=400, detail="非法文件名")
+
+        _, source_dir = _get_kb_dirs()
+        target = source_dir / safe_name
+        if not target.exists() or not target.is_file():
+            raise HTTPException(status_code=404, detail="文件不存在")
+
+        content = target.read_text(encoding="utf-8")
+        return {
+            "status": "success",
+            "name": safe_name,
+            "content": content,
+        }
+    except HTTPException:
+        raise
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="文件编码不支持，需为 UTF-8")
+    except Exception as e:
+        logger.error(f"预览现有知识库文件失败: {e}")
+        raise HTTPException(status_code=500, detail="预览现有知识库文件失败")
+
+
+@router.post("/source-update")
+async def update_source_file(payload: dict):
+    """更新 source 目录中的 markdown 文件内容"""
+    try:
+        name = payload.get("name", "")
+        content = payload.get("content", None)
+
+        if not name:
+            raise HTTPException(status_code=400, detail="name 不能为空")
+        if content is None:
+            raise HTTPException(status_code=400, detail="content 不能为空")
+
+        safe_name = Path(name).name
+        if safe_name != name or not safe_name.lower().endswith(".md"):
+            raise HTTPException(status_code=400, detail="非法文件名")
+
+        _, source_dir = _get_kb_dirs()
+        target = source_dir / safe_name
+        if not target.exists() or not target.is_file():
+            raise HTTPException(status_code=404, detail="文件不存在")
+
+        target.write_text(str(content), encoding="utf-8")
+
+        return {
+            "status": "success",
+            "name": safe_name,
+            "message": "文件已保存",
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"更新现有知识库文件失败: {e}")
+        raise HTTPException(status_code=500, detail="更新现有知识库文件失败")
+
+
+@router.post("/source-delete")
+async def delete_source_files(payload: dict):
+    """删除选中的 source 文件"""
+    try:
+        files: List[str] = payload.get("files", [])
+        if not files:
+            raise HTTPException(status_code=400, detail="files 不能为空")
+
+        _, source_dir = _get_kb_dirs()
+        deleted = []
+        skipped = []
+
+        for file_name in files:
+            safe_name = Path(file_name).name
+            if safe_name != file_name or not safe_name.lower().endswith(".md"):
+                skipped.append({"name": file_name, "reason": "非法文件名"})
+                continue
+
+            target = source_dir / safe_name
+            if not target.exists() or not target.is_file():
+                skipped.append({"name": safe_name, "reason": "文件不存在"})
+                continue
+
+            target.unlink()
+            deleted.append(safe_name)
+
+        return {
+            "status": "success",
+            "deleted_count": len(deleted),
+            "deleted": deleted,
+            "skipped": skipped,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"删除现有知识库文件失败: {e}")
+        raise HTTPException(status_code=500, detail="删除现有知识库文件失败")

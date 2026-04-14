@@ -85,7 +85,7 @@ class AlarmService:
     def record_alarm(self, record: RecognitionRecord) -> None:
         """记录报警信息"""
         state.add_recognition_result(record.dict())
-        logger.info(f"报警记录已添加: {record.alarm_level}")
+        logger.info(f"记录已添加: 报警={record.is_alarm}, 等级={record.alarm_level}")
         
         # 如果有警报，播放声音
         if record.is_alarm == "是" and record.alarm_level != "无":
@@ -101,6 +101,7 @@ class AlarmService:
             "alarm_reason": record.alarm_reason,
             "confidence": record.confidence,
             "camera_id": record.camera_id,
+            "face_recognition": record.face_recognition.dict() if record.face_recognition else None,
         }
         state.queue_broadcast_message(message)
 

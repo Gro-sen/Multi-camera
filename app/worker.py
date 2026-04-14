@@ -55,7 +55,7 @@ class InferenceWorker:
         )
         self._worker_thread.start()
         logger.info("推理工作线程已启动")
-        logger.info(f"[diagnostic] ThreadPoolExecutor max_workers={config.MAX_CONCURRENT_INFERENCES}")
+        logger.debug(f"[diagnostic] ThreadPoolExecutor max_workers={config.MAX_CONCURRENT_INFERENCES}")
 
     def stop(self) -> None:
         """停止推理工作线程并清理所有按摄像头创建的实例"""
@@ -93,7 +93,7 @@ class InferenceWorker:
 
         logger.info("推理工作线程已完全停止")
 
-    def _collect_due_frames(self) -> List[Tuple[str, Any]]:
+    def _collect_due_frames(self) -> List[Tuple[str, Any, str]]:
         """
         收集需要推理的帧（基于每个摄像头的上次推理时间）。
 
@@ -114,21 +114,23 @@ class InferenceWorker:
             return []
 
         now = time.time()
-        tasks: List[Tuple[str, Any]] = []
+        tasks: List[Tuple[str, Any, str]] = []
 
         # 先收集已到达间隔的摄像头
         for camera_id in camera_ids:
+            if not state.is_camera_analysis_enabled(camera_id):
+                continue
             last_infer_time = state.get_last_infer_time(camera_id)
             if now - last_infer_time < config.INFER_INTERVAL:
                 continue
 
-            frame = state.get_frame(camera_id)
+            frame, frame_ts = state.get_frame_with_timestamp(camera_id)
             if frame is None:
                 continue
 
             # 立即标记该摄像头的采样时间（使其下次认为已采样）
             state.update_infer_time(camera_id, now)
-            tasks.append((camera_id, frame))
+            tasks.append((camera_id, frame, frame_ts or ""))
             # 如果已达并发上限则返回
             if len(tasks) >= config.MAX_CONCURRENT_INFERENCES:
                 return tasks
@@ -138,11 +140,13 @@ class InferenceWorker:
             for camera_id in camera_ids:
                 if any(t[0] == camera_id for t in tasks):
                     continue
-                frame = state.get_frame(camera_id)
+                if not state.is_camera_analysis_enabled(camera_id):
+                    continue
+                frame, frame_ts = state.get_frame_with_timestamp(camera_id)
                 if frame is None:
                     continue
                 state.update_infer_time(camera_id, now)
-                tasks.append((camera_id, frame))
+                tasks.append((camera_id, frame, frame_ts or ""))
                 if len(tasks) >= config.MAX_CONCURRENT_INFERENCES:
                     break
 
@@ -150,16 +154,24 @@ class InferenceWorker:
 
     def _broadcast_batch(self, records: List[object], batch_timestamp: float) -> None:
         """批量广播推理结果"""
+        payload = []
+        for record in records:
+            record_dict = record.dict()
+            face_obj = getattr(record, "face_recognition", None)
+            if face_obj is not None and "face_recognition" not in record_dict:
+                record_dict["face_recognition"] = face_obj.dict()
+            payload.append(record_dict)
+
         message = {
             "type": "batch",
             "timestamp": batch_timestamp,
-            "data": [record.dict() for record in records]
+            "data": payload
         }
         state.queue_broadcast_message(message)
 
     def _inference_loop(self) -> None:
         """主推理循环：收集任务，使用线程池并发执行各摄像头对应的 InferenceService"""
-        logger.info("[diagnostic] 推理循环开始运行")
+        logger.debug("[diagnostic] 推理循环开始运行")
 
         try:
             while self.is_running and not self._stop_event.is_set():
@@ -173,11 +185,19 @@ class InferenceWorker:
                         time.sleep(0.05)
                         continue
 
-                    logger.info(f"[diagnostic] 收集到 {len(tasks)} 个任务，摄像头列表: {[t[0] for t in tasks]}，已创建服务数: {len(self.services)}")
+                    logger.debug(f"[diagnostic] 收集到 {len(tasks)} 个任务，摄像头列表: {[t[0] for t in tasks]}，已创建服务数: {len(self.services)}")
                     futures = []
-                    for camera_id, frame in tasks:
+                    for camera_id, frame, frame_ts in tasks:
                         svc = self._get_service_for_camera(camera_id)
-                        futures.append(self._executor.submit(svc.infer, frame, camera_id=camera_id, broadcast=False))
+                        futures.append(
+                            self._executor.submit(
+                                svc.infer,
+                                frame,
+                                camera_id=camera_id,
+                                frame_timestamp=frame_ts,
+                                broadcast=False,
+                            )
+                        )
 
                     records = []
                     for future in as_completed(futures):
@@ -189,8 +209,8 @@ class InferenceWorker:
                             record = None
                         if record:
                             records.append(record)
-                            logger.info(f"[diagnostic][并发监控] 任务完成: {record.camera_id} | 时间={now:.3f} | 活跃={state.get_active_inferences_count()}")
-                            logger.info(f"推理完成: {record.camera_id} {record.alarm_level}级警报")
+                            logger.debug(f"[diagnostic][并发监控] 任务完成: {record.camera_id} | 时间={now:.3f} | 活跃={state.get_active_inferences_count()}")
+                            logger.debug(f"推理完成: {record.camera_id} {record.alarm_level}级警报")
 
                     if records:
                         self._broadcast_batch(records, time.time())
@@ -219,7 +239,7 @@ class InferenceWorker:
             )
             self.services[camera_id] = svc
             logger.info(f"为摄像头 {camera_id} 创建推理服务实例（复用全局模型）")
-            logger.info(f"[diagnostic] 已创建服务：camera={camera_id} current_services={list(self.services.keys())}")
+            logger.debug(f"[diagnostic] 已创建服务：camera={camera_id} current_services={list(self.services.keys())}")
             return svc
         except Exception as e:
             logger.error(f"为摄像头 {camera_id} 创建推理服务失败: {e}", exc_info=True)

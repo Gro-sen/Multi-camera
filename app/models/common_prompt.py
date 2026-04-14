@@ -1,10 +1,9 @@
 import json
 from typing import Dict, Any, List
 
-STRICT_JSON_SUFFIX = (
-    "你必须只输出一个合法 JSON 对象；"
-    "不要 markdown，不要解释，不要额外文本。"
-)
+from kb.rule_source import get_prompt
+
+STRICT_JSON_SUFFIX = get_prompt("strict_json_suffix")
 
 def build_vision_prompt(base_prompt: str) -> str:
     return f"{base_prompt}\n\n{STRICT_JSON_SUFFIX}"

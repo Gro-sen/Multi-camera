@@ -6,6 +6,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import threading
 import time
+import logging
 
 # 全局缓存
 _cached_model = None
@@ -15,6 +16,7 @@ _cached_meta = None
 # 使用RLock（可重入锁）避免死锁
 _cache_lock = threading.RLock()
 _loading_in_progress = False  # 标记是否正在加载
+logger = logging.getLogger(__name__)
 
 def load_index(index_path='kb/index/faiss_bge.index', 
                meta_path='kb/index/docs_bge.pkl', 
@@ -39,30 +41,30 @@ def load_index(index_path='kb/index/faiss_bge.index',
             if not os.path.exists(index_path) or not os.path.exists(meta_path):
                 raise FileNotFoundError('Index or metadata not found. Run indexing first.')
             
-            print("【检索器】开始加载索引和模型...")
+            logger.debug("【检索器】开始加载索引和模型...")
             
             # 1. 加载模型（最耗时）
-            print("  - 加载BGE模型...")
+            logger.debug("  - 加载BGE模型...")
             start = time.time()
             _cached_model = SentenceTransformer(model_name)
-            print(f"    ✅ 模型加载完成，耗时: {time.time()-start:.1f}秒")
+            logger.debug(f"    ✅ 模型加载完成，耗时: {time.time()-start:.1f}秒")
             
             # 2. 加载索引
-            print("  - 加载FAISS索引...")
+            logger.debug("  - 加载FAISS索引...")
             start = time.time()
             _cached_index = faiss.read_index(index_path)
-            print(f"    ✅ 索引加载完成，耗时: {time.time()-start:.1f}秒")
-            print(f"      索引大小: {_cached_index.ntotal}")
+            logger.debug(f"    ✅ 索引加载完成，耗时: {time.time()-start:.1f}秒")
+            logger.debug(f"      索引大小: {_cached_index.ntotal}")
             
             # 3. 加载元数据
-            print("  - 加载元数据...")
+            logger.debug("  - 加载元数据...")
             start = time.time()
             with open(meta_path, 'rb') as f:
                 _cached_meta = pickle.load(f)
-            print(f"    ✅ 元数据加载完成，耗时: {time.time()-start:.1f}秒")
-            print(f"      元数据数量: {len(_cached_meta)}")
+            logger.debug(f"    ✅ 元数据加载完成，耗时: {time.time()-start:.1f}秒")
+            logger.debug(f"      元数据数量: {len(_cached_meta)}")
             
-            print("✅ 所有资源加载完成")
+            logger.info("知识库检索资源加载完成")
             return _cached_index, _cached_meta, _cached_model
             
         finally:
@@ -83,7 +85,7 @@ def query(query_text: str, top_k=5, similarity_threshold=0.3):
         
         # 检查复制后的引用是否有效
         if index is None or meta is None or model is None:
-            print("【检索器】索引未加载，返回空结果")
+            logger.debug("【检索器】索引未加载，返回空结果")
             return []
         
         # BGE模型建议的查询格式
@@ -114,11 +116,11 @@ def query(query_text: str, top_k=5, similarity_threshold=0.3):
                     'distance': float(distance)
                 })
         
-        print(f"【检索器】查询 '{query_text[:30]}...' 返回 {len(results)} 个结果")
+        logger.debug(f"【检索器】查询 '{query_text[:30]}...' 返回 {len(results)} 个结果")
         return results
         
     except Exception as e:
-        print(f"【检索器】查询过程中出错: {e}")
+        logger.warning(f"【检索器】查询过程中出错: {e}")
         # 返回空结果而不是抛出异常
         return []
 
@@ -129,4 +131,4 @@ def refresh_cache():
         _cached_model = None
         _cached_index = None
         _cached_meta = None
-    print("【检索器】缓存已刷新")
+    logger.debug("【检索器】缓存已刷新")

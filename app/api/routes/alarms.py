@@ -2,9 +2,13 @@
 报警相关路由
 """
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import FileResponse
 from typing import List, Optional
 from datetime import datetime, timedelta
+from pathlib import Path
+import os
 
+from app.core import config
 from app.core import get_logger, state
 from app.models.types import RecognitionRecord
 
@@ -13,9 +17,19 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/alarms", tags=["alarms"])
 
 
+def _build_alarm_image_url(image_path: Optional[str]) -> Optional[str]:
+    if not image_path:
+        return None
+    filename = Path(str(image_path)).name
+    if not filename:
+        return None
+    return f"/api/alarms/image/{filename}"
+
+
 @router.get("/history")
 async def get_alarm_history(
     limit: int = Query(50, ge=1, le=500),
+    camera_id: Optional[str] = Query(None, description="筛选摄像头ID"),
     alarm_level: Optional[str] = Query(None, description="筛选报警级别"),
     is_alarm_only: bool = Query(False, description="仅显示报警记录")
 ):
@@ -26,17 +40,49 @@ async def get_alarm_history(
         # 筛选
         if is_alarm_only:
             results = [r for r in results if r.get("is_alarm") == "是"]
+
+        if camera_id:
+            results = [r for r in results if r.get("camera_id") == camera_id]
         
         if alarm_level:
             results = [r for r in results if r.get("alarm_level") == alarm_level]
+
+        enriched = []
+        for record in results:
+            item = dict(record)
+            item["image_url"] = _build_alarm_image_url(item.get("image_path"))
+            enriched.append(item)
         
         return {
-            "total": len(results),
-            "data": results
+            "total": len(enriched),
+            "data": enriched
         }
     except Exception as e:
         logger.error(f"获取报警历史失败: {e}")
         raise HTTPException(status_code=500, detail="获取报警历史失败")
+
+
+@router.get("/image/{filename}")
+async def get_alarm_image(filename: str):
+    """获取报警图片文件"""
+    try:
+        safe_name = Path(filename).name
+        if not safe_name:
+            raise HTTPException(status_code=404, detail="图片不存在")
+
+        image_path = (config.ALARM_DIR / safe_name).resolve()
+        alarm_dir = config.ALARM_DIR.resolve()
+        if alarm_dir not in image_path.parents and image_path != alarm_dir:
+            raise HTTPException(status_code=400, detail="非法图片路径")
+        if not image_path.exists() or not image_path.is_file():
+            raise HTTPException(status_code=404, detail="图片不存在")
+
+        return FileResponse(str(image_path), media_type="image/jpeg", filename=safe_name)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取报警图片失败: {e}")
+        raise HTTPException(status_code=500, detail="获取报警图片失败")
 
 
 @router.get("/statistics")

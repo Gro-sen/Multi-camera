@@ -219,6 +219,19 @@ class CameraWorker:
 
     def get_stats(self) -> CameraStats:
         """获取统计信息"""
+        if not self.is_running:
+            return CameraStats(
+                is_connected=False,
+                connection_status="offline",
+                frames_received=self.monitor.frames_received,
+                connection_errors=self.monitor.connection_errors,
+                fps=0.0,
+                uptime_seconds=0.0,
+                frame_delay_seconds=0.0,
+                last_frame_time=self.monitor.last_frame_time and time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.monitor.last_frame_time)),
+                last_error_time=self.monitor.last_error_time and time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.monitor.last_error_time)),
+                last_error_message=self.monitor.last_error_message,
+            )
         return self.monitor.get_stats()
 
 
@@ -247,6 +260,38 @@ class CameraService:
             worker.start()
             logger.info(f"摄像头已启动: {camera_id}")
 
+    def start_camera(self, camera_id: str) -> bool:
+        """启动单路摄像头"""
+        worker = self.workers.get(camera_id)
+        if worker is None:
+            return False
+        worker.start()
+        logger.info(f"摄像头已启动: {camera_id}")
+        return True
+
+    def stop_camera(self, camera_id: str) -> bool:
+        """停止单路摄像头"""
+        worker = self.workers.get(camera_id)
+        if worker is None:
+            return False
+        worker.stop()
+        logger.info(f"摄像头已停止: {camera_id}")
+        return True
+
+    def get_camera_status(self, camera_id: str) -> Optional[dict]:
+        """获取单路摄像头状态"""
+        worker = self.workers.get(camera_id)
+        if worker is None:
+            return None
+
+        stats = worker.get_stats()
+        return {
+            "camera_id": camera_id,
+            "is_running": worker.is_running,
+            "analysis_enabled": state.is_camera_analysis_enabled(camera_id),
+            "stats": stats.dict(),
+        }
+
     def stop(self) -> None:
         """停止摄像头服务"""
         self.is_running = False
@@ -264,6 +309,18 @@ class CameraService:
     def get_all_stats(self) -> Dict[str, CameraStats]:
         """获取全部摄像头统计信息"""
         return {camera_id: worker.get_stats() for camera_id, worker in self.workers.items()}
+
+    def get_all_camera_status(self) -> Dict[str, dict]:
+        """获取全部摄像头运行状态"""
+        return {
+            camera_id: {
+                "camera_id": camera_id,
+                "is_running": worker.is_running,
+                "analysis_enabled": state.is_camera_analysis_enabled(camera_id),
+                "stats": worker.get_stats().dict(),
+            }
+            for camera_id, worker in self.workers.items()
+        }
 
     def get_current_frame(self, camera_id: str) -> Optional[bytes]:
         """获取当前帧（用于视频流）"""

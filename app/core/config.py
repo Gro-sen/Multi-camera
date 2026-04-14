@@ -46,6 +46,11 @@ class Config:
     # ===== 推理参数 =====
     INFER_INTERVAL = float(os.getenv("INFER_INTERVAL", "2.0"))  # 秒
     MAX_CONCURRENT_INFERENCES = int(os.getenv("MAX_CONCURRENT_INFERENCES", "4"))
+    FAST_RULE_ONLY_MODE = os.getenv("FAST_RULE_ONLY_MODE", "false").lower() == "true"
+    SKIP_KB_RETRIEVAL = os.getenv("SKIP_KB_RETRIEVAL", "false").lower() == "true"
+    INFER_FRAME_WIDTH = int(os.getenv("INFER_FRAME_WIDTH", "640"))
+    INFER_FRAME_HEIGHT = int(os.getenv("INFER_FRAME_HEIGHT", "360"))
+    INFER_JPEG_QUALITY = int(os.getenv("INFER_JPEG_QUALITY", "80"))
     
     # ===== 模型配置 =====
     ALIBABA_VISION_MODEL = os.getenv("ALIBABA_VISION_MODEL", "qwen3-vl-8b-thinking")
@@ -77,9 +82,28 @@ class Config:
     
     # ===== 日志配置 =====
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+    LLM_OUTPUT_LOG_ENABLED = os.getenv("LLM_OUTPUT_LOG_ENABLED", "true").lower() == "true"
+    FACE_OUTPUT_LOG_ENABLED = os.getenv("FACE_OUTPUT_LOG_ENABLED", "true").lower() == "true"
+    LLM_OUTPUT_LOG_MAX_CHARS = int(os.getenv("LLM_OUTPUT_LOG_MAX_CHARS", "800"))
     
     # ===== 调试配置 =====
     DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+
+    # ===== 人脸识别配置 =====
+    FACE_RECOGNITION_ENABLED = os.getenv("FACE_RECOGNITION_ENABLED", "true").lower() == "true"
+    FACE_WHITELIST_DIR = BASE_DIR / os.getenv("FACE_WHITELIST_DIR", "faces/whitelist")
+    FACE_MODEL_NAME = os.getenv("FACE_MODEL_NAME", "buffalo_l")
+    FACE_DETECTION_SIZE = int(os.getenv("FACE_DETECTION_SIZE", "640"))
+    FACE_MATCH_THRESHOLD = float(os.getenv("FACE_MATCH_THRESHOLD", "0.45"))
+    FACE_CTX_ID = int(os.getenv("FACE_CTX_ID", "0"))
+    FACE_PROVIDERS = [
+        p.strip() for p in os.getenv(
+            "FACE_PROVIDERS",
+            "CUDAExecutionProvider,CPUExecutionProvider"
+        ).split(",") if p.strip()
+    ]
+
+    FACE_WHITELIST_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # 创建全局配置实例

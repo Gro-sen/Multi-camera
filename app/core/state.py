@@ -3,6 +3,7 @@
 """
 import threading
 import queue
+from datetime import datetime
 from collections import deque
 from statistics import median
 from typing import List, Dict, Any, Optional
@@ -58,12 +59,16 @@ class AppState:
         self.frame_buffers: Dict[str, FrameBuffer] = {}
         self.latest_frame_lock = threading.Lock()
         self.latest_frames: Dict[str, np.ndarray] = {}
+        self.latest_frame_timestamps: Dict[str, str] = {}
         self.camera_ids: List[str] = []
+        self.camera_analysis_enabled: Dict[str, bool] = {}
         
         # ===== 推理管理 =====
         self.inference_lock = threading.Lock()
         self.vision_model = None
         self.reasoning_model = None
+        self.face_service = None
+        self.face_service_lock = threading.Lock()
         self.camera_inference_locks: Dict[str, threading.Semaphore] = {}
         self.last_infer_times: Dict[str, float] = {}
         self.active_inferences: Dict[str, float] = {}  # camera_id -> 开始推理的时间戳
@@ -97,16 +102,19 @@ class AppState:
             self.frame_buffers[camera_id] = FrameBuffer()
         if camera_id not in self.camera_ids:
             self.camera_ids.append(camera_id)
+        if camera_id not in self.camera_analysis_enabled:
+            self.camera_analysis_enabled[camera_id] = True
         if camera_id not in self.last_infer_times:
             self.last_infer_times[camera_id] = 0.0
         if camera_id not in self.inference_latencies:
             self.inference_latencies[camera_id] = deque(maxlen=200)
 
-    def update_frame(self, camera_id: str, frame: np.ndarray) -> None:
+    def update_frame(self, camera_id: str, frame: np.ndarray, frame_timestamp: Optional[str] = None) -> None:
         """更新指定摄像头帧"""
         self.register_camera(camera_id)
         with self.latest_frame_lock:
             self.latest_frames[camera_id] = frame
+            self.latest_frame_timestamps[camera_id] = frame_timestamp or datetime.now().isoformat()
         self.frame_buffers[camera_id].write(frame)
     
     def get_buffered_frame(self, camera_id: str) -> Optional[np.ndarray]:
@@ -130,6 +138,15 @@ class AppState:
             if frame is not None:
                 return frame.copy()
             return None
+
+    def get_frame_with_timestamp(self, camera_id: str) -> tuple[Optional[np.ndarray], Optional[str]]:
+        """原子获取当前帧及其采集时间（供推理使用）"""
+        with self.latest_frame_lock:
+            frame = self.latest_frames.get(camera_id)
+            ts = self.latest_frame_timestamps.get(camera_id)
+            if frame is not None:
+                return frame.copy(), ts
+            return None, ts
     
     # ===== 推理管理 =====
     def init_models(self) -> None:
@@ -148,6 +165,23 @@ class AppState:
             logger = get_logger(__name__)
             logger.error(f"模型预加载失败: {e}", exc_info=True)
             raise
+
+    def init_face_service(self):
+        """系统启动时预加载人脸识别服务（全局单例共享）"""
+        if self.face_service is not None:
+            return self.face_service
+
+        with self.face_service_lock:
+            if self.face_service is not None:
+                return self.face_service
+
+            from app.services.face_recognition import FaceRecognitionService
+
+            self.face_service = FaceRecognitionService()
+            from app.core import get_logger
+            logger = get_logger(__name__)
+            logger.info("✓ 全局人脸识别服务已初始化并缓存")
+            return self.face_service
     
     def acquire_camera_lock(self, camera_id: str, timeout: float = 2.0) -> bool:
         """尝试获取摄像头推理锁（每摄像头独立）"""
@@ -178,6 +212,16 @@ class AppState:
     def get_camera_ids(self) -> List[str]:
         """获取已注册摄像头ID列表"""
         return list(self.camera_ids)
+
+    def set_camera_analysis_enabled(self, camera_id: str, enabled: bool) -> None:
+        """设置单路摄像头是否参与推理"""
+        with self.inference_lock:
+            self.camera_analysis_enabled[camera_id] = enabled
+
+    def is_camera_analysis_enabled(self, camera_id: str) -> bool:
+        """检查单路摄像头是否参与推理"""
+        with self.inference_lock:
+            return self.camera_analysis_enabled.get(camera_id, True)
 
     def mark_inference_start(self, camera_id: str) -> None:
         """标记推理开始"""

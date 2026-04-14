@@ -2,6 +2,7 @@
 推理模型抽象层
 """
 import json
+import os
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 import re
@@ -12,6 +13,15 @@ from app.core.exceptions import ModelException
 from app.utils import JSONFixer
 from app.models.common_prompt import build_reasoning_prompt
 logger = get_logger(__name__)
+
+
+def _clip_text(text: str, limit: int) -> str:
+    if text is None:
+        return ""
+    s = str(text)
+    if len(s) <= limit:
+        return s
+    return f"{s[:limit]} ...[truncated {len(s) - limit} chars]"
 
 
 def extract_json_from_response(response_text: str) -> dict:
@@ -67,19 +77,28 @@ class AlibabaReasoningModel(ReasoningModelBase):
         except ImportError:
             logger.warning("阿里云客户端未安装，推理模型不可用")
             self.available = False
-        self.model = config.ALIBABA_REASONING_MODEL
+
+    def _get_model_name(self) -> str:
+        return os.getenv("ALIBABA_REASONING_MODEL", config.ALIBABA_REASONING_MODEL)
 
     def infer(self, facts: Dict[str, Any], cases: List[Dict[str, Any]], prompt: str) -> str:
         if not self.available:
             raise ModelException("推理模型不可用")
 
         try:
+            self.model = self._get_model_name()
             final_prompt = build_reasoning_prompt(prompt, facts, cases)
             raw_output = self.client.generate(
                 model=self.model,
                 prompt=final_prompt,
                 options={"temperature": 0.1, "top_p": 0.2},
             )
+            if config.LLM_OUTPUT_LOG_ENABLED:
+                logger.info(
+                    "推理模型输出[%s]: %s",
+                    self.model,
+                    _clip_text(raw_output, config.LLM_OUTPUT_LOG_MAX_CHARS),
+                )
             return raw_output
         except Exception as e:
             logger.error(f"推理失败: {e}", exc_info=True)

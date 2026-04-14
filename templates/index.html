@@ -227,6 +227,409 @@
             min-height: 0;
         }
 
+        .manage-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .system-cards {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .system-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .system-card-label {
+            font-size: 0.8em;
+            color: #6c757d;
+            font-weight: 700;
+        }
+
+        .system-card-value {
+            font-size: 0.92em;
+            color: #212529;
+            line-height: 1.4;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .alarm-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1170;
+            background: rgba(0, 0, 0, 0.45);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .alarm-modal.active {
+            display: flex;
+        }
+
+        .alarm-modal-content {
+            width: min(1100px, 96vw);
+            max-height: 90vh;
+            overflow: auto;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+            padding: 14px;
+        }
+
+        .alarm-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .alarm-modal-title {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .alarm-modal-close {
+            border: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: #fa5252;
+            color: #fff;
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 30px;
+            text-align: center;
+        }
+
+        .alarm-modal-close:hover {
+            background: #f03e3e;
+        }
+
+        .alarm-toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .alarm-filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .alarm-filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 180px;
+        }
+
+        .alarm-filter-label {
+            font-size: 0.8em;
+            font-weight: 700;
+            color: #495057;
+        }
+
+        .alarm-filter-select {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 0.9em;
+            background: #fff;
+            color: #212529;
+            min-width: 180px;
+        }
+
+        .alarm-filter-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-left: auto;
+        }
+
+        .alarm-layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 12px;
+        }
+
+        .alarm-list {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            max-height: 72vh;
+            overflow-y: auto;
+        }
+
+        .alarm-item {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 10px;
+            background: #fff;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .alarm-item:hover,
+        .alarm-item.active {
+            border-color: #74c0fc;
+            background: #e7f5ff;
+            transform: translateY(-1px);
+        }
+
+        .alarm-item-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.84em;
+            color: #495057;
+        }
+
+        .alarm-item-title {
+            font-size: 0.92em;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 4px;
+        }
+
+        .alarm-item-sub {
+            font-size: 0.82em;
+            color: #6c757d;
+            line-height: 1.45;
+        }
+
+        .alarm-item-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.75em;
+            font-weight: 700;
+            margin-right: 6px;
+        }
+
+        .alarm-item-badge.general { background: #fff3bf; color: #e67700; }
+        .alarm-item-badge.severe { background: #ffd8a8; color: #f08c00; }
+        .alarm-item-badge.critical { background: #ffc9c9; color: #c92a2a; }
+        .alarm-item-badge.none { background: #d3f9d8; color: #2b8a3e; }
+
+        .alarm-detail {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            background: #fff;
+            padding: 12px;
+            min-height: 540px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .alarm-detail-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .alarm-detail-title {
+            font-size: 1.02em;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .alarm-detail-meta {
+            font-size: 0.84em;
+            color: #6c757d;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        .alarm-image {
+            width: 100%;
+            max-height: 420px;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            background: #111;
+        }
+
+        .alarm-detail-text {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            background: #f8f9fa;
+            padding: 10px 12px;
+            white-space: pre-wrap;
+            line-height: 1.65;
+            color: #2c3e50;
+            font-size: 0.92em;
+        }
+
+        .alarm-detail-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 240px;
+            color: #6c757d;
+            border: 1px dashed #ced4da;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .camera-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1180;
+            background: rgba(0, 0, 0, 0.45);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .camera-modal.active {
+            display: flex;
+        }
+
+        .camera-modal-content {
+            width: min(760px, 96vw);
+            max-height: 88vh;
+            overflow: auto;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+            padding: 14px;
+        }
+
+        .camera-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .camera-modal-title {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .camera-modal-close {
+            border: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: #fa5252;
+            color: #fff;
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 30px;
+            text-align: center;
+        }
+
+        .camera-modal-close:hover {
+            background: #f03e3e;
+        }
+
+        .camera-manager-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .camera-manager-item {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .camera-manager-item.active {
+            border-color: #74c0fc;
+            background: #e7f5ff;
+        }
+
+        .camera-manager-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .camera-manager-name {
+            font-size: 0.98em;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .camera-manager-sub {
+            font-size: 0.84em;
+            color: #6c757d;
+        }
+
+        .camera-manager-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.8em;
+            font-weight: 700;
+        }
+
+        .camera-manager-status.online {
+            background: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .camera-manager-status.offline,
+        .camera-manager-status.stopped {
+            background: #ffe3e3;
+            color: #c92a2a;
+        }
+
+        .camera-manager-status.reconnecting {
+            background: #fff3bf;
+            color: #e67700;
+        }
+
+        .camera-manager-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
         .results-column {
             min-height: 0;
             display: flex;
@@ -349,13 +752,99 @@
             min-height: 20px;
         }
 
+        .kb-divider {
+            margin: 12px 0;
+            border: 0;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .kb-source-title {
+            font-size: 0.95em;
+            font-weight: 700;
+            color: #343a40;
+            margin-bottom: 10px;
+        }
+
+        .kb-source-layout {
+            display: grid;
+            grid-template-columns: minmax(220px, 320px) 1fr;
+            gap: 10px;
+        }
+
+        .kb-source-list {
+            max-height: 260px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px;
+            background: #fafafa;
+        }
+
+        .kb-source-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.88em;
+        }
+
+        .kb-source-item:hover {
+            background: #edf2ff;
+        }
+
+        .kb-source-item.active {
+            background: #dbe4ff;
+            color: #1c3faa;
+            font-weight: 600;
+        }
+
+        .kb-source-editor-wrap {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            min-height: 260px;
+        }
+
+        .kb-source-editor-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .kb-source-current {
+            font-size: 0.85em;
+            color: #495057;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .kb-source-editor {
+            flex: 1;
+            border: 0;
+            padding: 10px;
+            font-size: 0.86em;
+            line-height: 1.5;
+            resize: vertical;
+            min-height: 220px;
+            font-family: Consolas, 'Courier New', monospace;
+        }
+
         .kb-preview-box {
             display: none;
-            position: fixed;
-            right: 24px;
-            top: 110px;
-            width: min(560px, calc(100vw - 48px));
-            max-height: 36vh;
+            position: absolute;
+            right: 12px;
+            top: 90px;
+            width: min(560px, calc(100% - 24px));
+            max-height: 42vh;
             border: 1px solid #e9ecef;
             border-radius: 8px;
             background: #ffffff;
@@ -415,6 +904,213 @@
             font-family: Consolas, 'Courier New', monospace;
             max-height: calc(36vh - 54px);
             overflow: auto;
+        }
+
+        .kb-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1190;
+            background: rgba(0, 0, 0, 0.45);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .kb-modal.active {
+            display: flex;
+        }
+
+        .kb-modal-content {
+            width: min(980px, 96vw);
+            max-height: 88vh;
+            overflow: auto;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+            padding: 14px;
+        }
+
+        .kb-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .kb-modal-title {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .kb-modal-close {
+            border: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: #fa5252;
+            color: #fff;
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 30px;
+            text-align: center;
+        }
+
+        .kb-modal-close:hover {
+            background: #f03e3e;
+        }
+
+        .face-panel {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .face-title {
+            font-size: 0.95em;
+            font-weight: 700;
+            color: #343a40;
+            margin-bottom: 10px;
+        }
+
+        .face-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .face-input-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .face-identity-input {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 0.88em;
+            min-width: 180px;
+            flex: 1;
+        }
+
+        .face-upload-input {
+            font-size: 0.85em;
+            max-width: 300px;
+        }
+
+        .face-list {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px;
+            background: #fafafa;
+        }
+
+        .face-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 0.88em;
+        }
+
+        .face-identity-tag {
+            font-size: 0.78em;
+            padding: 2px 6px;
+            border-radius: 999px;
+            color: #fff;
+            background: #2b8a3e;
+            flex-shrink: 0;
+        }
+
+        .face-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .face-delete-btn {
+            border: 0;
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: #fff;
+            background: #fa5252;
+            cursor: pointer;
+            font-size: 0.78em;
+        }
+
+        .face-delete-btn:hover {
+            background: #f03e3e;
+        }
+
+        .face-status {
+            margin-top: 8px;
+            font-size: 0.86em;
+            color: #495057;
+            min-height: 20px;
+        }
+
+        .face-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+            background: rgba(0, 0, 0, 0.45);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .face-modal.active {
+            display: flex;
+        }
+
+        .face-modal-content {
+            width: min(860px, 96vw);
+            max-height: 88vh;
+            overflow: auto;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+            padding: 14px;
+        }
+
+        .face-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .face-modal-title {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .face-modal-close {
+            border: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: #fa5252;
+            color: #fff;
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 30px;
+            text-align: center;
+        }
+
+        .face-modal-close:hover {
+            background: #f03e3e;
         }
 
         .result-item {
@@ -523,12 +1219,20 @@
                 grid-template-columns: 1fr;
             }
 
+            .system-cards {
+                grid-template-columns: 1fr;
+            }
+
             .kb-preview-box {
                 right: 12px;
                 left: 12px;
                 width: auto;
-                top: 90px;
+                top: 80px;
                 max-height: 65vh;
+            }
+
+            .kb-source-layout {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -569,22 +1273,25 @@
 
         <div class="results-section">
             <h2 class="section-title">分析结果</h2>
-            <div class="kb-panel">
-                <div class="kb-actions">
-                    <button class="kb-btn primary" id="btnLoadPend">刷新待审核列表</button>
-                    <button class="kb-btn success" id="btnImportPend">导入已选到知识库</button>
-                    <button class="kb-btn warning" id="btnRebuildIndex">重建索引</button>
+            <div class="manage-actions">
+                <button class="kb-btn primary" id="btnOpenCameraManager">摄像头管理</button>
+                <button class="kb-btn primary" id="btnOpenAlarmHistory">报警历史</button>
+                <button class="kb-btn primary" id="btnOpenModelManager">模型切换</button>
+                <button class="kb-btn primary" id="btnOpenKbManager">知识库管理</button>
+                <button class="kb-btn primary" id="btnOpenFaceManager">白名单管理</button>
+            </div>
+            <div class="system-cards">
+                <div class="system-card">
+                    <div class="system-card-label">CPU 使用率</div>
+                    <div class="system-card-value" id="systemCpuValue">--</div>
                 </div>
-                <div class="kb-pend-list" id="pendList">
-                    <div class="status">待加载 pend 文件...</div>
+                <div class="system-card">
+                    <div class="system-card-label">GPU 显存占用</div>
+                    <div class="system-card-value" id="systemMemoryValue">--</div>
                 </div>
-                <div class="kb-status" id="kbActionStatus"></div>
-                <div class="kb-preview-box" id="kbPreviewBox">
-                    <div class="kb-preview-header">
-                        <div class="kb-preview-title" id="kbPreviewTitle">文件预览</div>
-                        <button type="button" class="kb-preview-close" id="btnClosePreview" title="关闭预览">×</button>
-                    </div>
-                    <pre class="kb-preview-content" id="kbPreviewContent"></pre>
+                <div class="system-card">
+                    <div class="system-card-label">当前模型配置</div>
+                    <div class="system-card-value" id="systemModelValue">--</div>
                 </div>
             </div>
             <div class="results-grid">
@@ -600,8 +1307,173 @@
         </div>
     </div>
 
+    <div class="kb-modal" id="kbModal">
+        <div class="kb-modal-content">
+            <div class="kb-modal-header">
+                <div class="kb-modal-title">知识库管理</div>
+                <button type="button" class="kb-modal-close" id="btnCloseKbManager">×</button>
+            </div>
+            <div class="kb-panel">
+                <div class="kb-actions">
+                    <button class="kb-btn primary" id="btnLoadPend">刷新待审核列表</button>
+                    <button class="kb-btn success" id="btnImportPend">导入已选到知识库</button>
+                    <button class="kb-btn warning" id="btnRebuildIndex">重建索引</button>
+                </div>
+                <div class="kb-pend-list" id="pendList">
+                    <div class="status">待加载 pend 文件...</div>
+                </div>
+                <div class="kb-status" id="kbActionStatus"></div>
+                <hr class="kb-divider">
+                <div class="kb-source-title">现有知识库（source）</div>
+                <div class="kb-actions">
+                    <button class="kb-btn primary" id="btnLoadSource">刷新现有知识库</button>
+                    <button class="kb-btn success" id="btnSaveSource">保存当前文件</button>
+                    <button class="kb-btn warning" id="btnDeleteSource">删除当前文件</button>
+                </div>
+                <div class="kb-source-layout">
+                    <div class="kb-source-list" id="sourceList">
+                        <div class="status">待加载 source 文件...</div>
+                    </div>
+                    <div class="kb-source-editor-wrap">
+                        <div class="kb-source-editor-head">
+                            <div class="kb-source-current" id="sourceCurrentName">当前文件: 未选择</div>
+                        </div>
+                        <textarea class="kb-source-editor" id="sourceEditor" placeholder="请选择左侧文件进行查看和编辑"></textarea>
+                    </div>
+                </div>
+                <div class="kb-preview-box" id="kbPreviewBox">
+                    <div class="kb-preview-header">
+                        <div class="kb-preview-title" id="kbPreviewTitle">文件预览</div>
+                        <button type="button" class="kb-preview-close" id="btnClosePreview" title="关闭预览">×</button>
+                    </div>
+                    <pre class="kb-preview-content" id="kbPreviewContent"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="face-modal" id="faceModal">
+        <div class="face-modal-content">
+            <div class="face-modal-header">
+                <div class="face-modal-title">人脸白名单管理</div>
+                <button type="button" class="face-modal-close" id="btnCloseFaceManager">×</button>
+            </div>
+            <div class="face-panel">
+                <div class="face-actions">
+                    <button class="kb-btn primary" id="btnLoadWhitelist">刷新白名单列表</button>
+                    <button class="kb-btn warning" id="btnRefreshWhitelistRuntime">刷新运行中白名单</button>
+                </div>
+                <div class="face-input-row">
+                    <input type="text" id="faceIdentityInput" class="face-identity-input" placeholder="可选：身份前缀（如 zhangsan）">
+                    <input type="file" id="faceUploadInput" class="face-upload-input" accept=".jpg,.jpeg,.png,.bmp" multiple>
+                    <button class="kb-btn success" id="btnUploadWhitelist">上传到白名单</button>
+                </div>
+                <div class="face-list" id="faceWhitelistList">
+                    <div class="status">待加载白名单...</div>
+                </div>
+                <div class="face-status" id="faceActionStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="camera-modal" id="cameraModal">
+        <div class="camera-modal-content">
+            <div class="camera-modal-header">
+                <div class="camera-modal-title">摄像头管理</div>
+                <button type="button" class="camera-modal-close" id="btnCloseCameraManager">×</button>
+            </div>
+            <div class="camera-manager-list" id="cameraManagerList">
+                <div class="status">待加载摄像头列表...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="camera-modal" id="modelModal">
+        <div class="camera-modal-content" style="max-width:640px;">
+            <div class="camera-modal-header">
+                <div class="camera-modal-title">模型切换</div>
+                <button type="button" class="camera-modal-close" id="btnCloseModelManager">×</button>
+            </div>
+            <div class="camera-manager-list" style="gap:12px;">
+                <div class="camera-manager-item" style="display:block;">
+                    <div class="camera-manager-sub" id="modelCurrentInfo">当前模型：加载中...</div>
+                </div>
+                <div class="camera-manager-item" style="display:block;">
+                    <div class="alarm-filter-group" style="min-width:auto;">
+                        <div class="alarm-filter-label">模型提供方</div>
+                        <select class="alarm-filter-select" id="modelProviderSelect" style="min-width:auto; width:100%;">
+                            <option value="aliyun">aliyun</option>
+                            <option value="ollama">ollama</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="camera-manager-item" style="display:block;">
+                    <div class="alarm-filter-group" style="min-width:auto;">
+                        <div class="alarm-filter-label">视觉模型名</div>
+                        <select class="alarm-filter-select" id="modelVisionSelect" style="min-width:auto; width:100%;"></select>
+                    </div>
+                    <div class="alarm-filter-group" style="min-width:auto; margin-top:10px;">
+                        <div class="alarm-filter-label">推理模型名</div>
+                        <select class="alarm-filter-select" id="modelReasoningSelect" style="min-width:auto; width:100%;"></select>
+                    </div>
+                    <div class="camera-manager-actions" style="margin-top:12px; justify-content:flex-end;">
+                        <button type="button" class="kb-btn success" id="btnApplyModelSwitch">应用切换</button>
+                    </div>
+                    <div class="face-status" id="modelSwitchStatus"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alarm-modal" id="alarmModal">
+        <div class="alarm-modal-content">
+            <div class="alarm-modal-header">
+                <div class="alarm-modal-title">报警历史</div>
+                <button type="button" class="alarm-modal-close" id="btnCloseAlarmHistory">×</button>
+            </div>
+            <div class="alarm-toolbar">
+                <button class="kb-btn primary" id="btnLoadAlarmHistory">刷新报警历史</button>
+                <button class="kb-btn warning" id="btnLoadOnlyAlarmHistory">仅看报警记录</button>
+            </div>
+            <div class="alarm-filter-row">
+                <div class="alarm-filter-group">
+                    <div class="alarm-filter-label">摄像头</div>
+                    <select class="alarm-filter-select" id="alarmCameraFilter">
+                        <option value="">全部摄像头</option>
+                    </select>
+                </div>
+                <div class="alarm-filter-group">
+                    <div class="alarm-filter-label">报警等级</div>
+                    <select class="alarm-filter-select" id="alarmLevelFilter">
+                        <option value="">全部等级</option>
+                        <option value="无">无</option>
+                        <option value="一般">一般</option>
+                        <option value="严重">严重</option>
+                        <option value="紧急">紧急</option>
+                    </select>
+                </div>
+                <div class="alarm-filter-actions">
+                    <label class="alarm-filter-group" style="min-width:auto; flex-direction:row; align-items:center; gap:8px; margin:0;">
+                        <input type="checkbox" id="alarmOnlyFilter">
+                        <span class="alarm-filter-label" style="margin:0;">仅看报警记录</span>
+                    </label>
+                    <button class="kb-btn success" id="btnApplyAlarmFilter">应用筛选</button>
+                    <button class="kb-btn warning" id="btnResetAlarmFilter">重置筛选</button>
+                </div>
+            </div>
+            <div class="alarm-layout">
+                <div class="alarm-list" id="alarmList">
+                    <div class="status">待加载报警历史...</div>
+                </div>
+                <div class="alarm-detail" id="alarmDetail">
+                    <div class="alarm-detail-empty">请选择左侧一条历史记录查看图片和详情</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 引入 markdown 工具 -->
-    <script src="/static/js/markdown-utils.js"></script>
+    <script src="/static/js/markdown-utils.js?v=20260413-reason-visibility"></script>
     
     <script>
         let ws;
@@ -616,12 +1488,272 @@
         const btnLoadPend = document.getElementById('btnLoadPend');
         const btnImportPend = document.getElementById('btnImportPend');
         const btnRebuildIndex = document.getElementById('btnRebuildIndex');
+        const btnOpenKbManager = document.getElementById('btnOpenKbManager');
+        const btnCloseKbManager = document.getElementById('btnCloseKbManager');
+        const kbModalEl = document.getElementById('kbModal');
+        const btnOpenCameraManager = document.getElementById('btnOpenCameraManager');
+        const btnCloseCameraManager = document.getElementById('btnCloseCameraManager');
+        const cameraModalEl = document.getElementById('cameraModal');
+        const cameraManagerListEl = document.getElementById('cameraManagerList');
+        const btnOpenAlarmHistory = document.getElementById('btnOpenAlarmHistory');
+        const btnCloseAlarmHistory = document.getElementById('btnCloseAlarmHistory');
+        const btnOpenModelManager = document.getElementById('btnOpenModelManager');
+        const btnCloseModelManager = document.getElementById('btnCloseModelManager');
+        const btnApplyModelSwitch = document.getElementById('btnApplyModelSwitch');
+        const btnLoadAlarmHistory = document.getElementById('btnLoadAlarmHistory');
+        const btnLoadOnlyAlarmHistory = document.getElementById('btnLoadOnlyAlarmHistory');
+        const alarmModalEl = document.getElementById('alarmModal');
+        const modelModalEl = document.getElementById('modelModal');
+        const modelCurrentInfoEl = document.getElementById('modelCurrentInfo');
+        const modelProviderSelectEl = document.getElementById('modelProviderSelect');
+        const modelVisionSelectEl = document.getElementById('modelVisionSelect');
+        const modelReasoningSelectEl = document.getElementById('modelReasoningSelect');
+        const modelSwitchStatusEl = document.getElementById('modelSwitchStatus');
+        const systemCpuValueEl = document.getElementById('systemCpuValue');
+        const systemMemoryValueEl = document.getElementById('systemMemoryValue');
+        const systemModelValueEl = document.getElementById('systemModelValue');
+        const alarmListEl = document.getElementById('alarmList');
+        const alarmDetailEl = document.getElementById('alarmDetail');
+        const alarmCameraFilterEl = document.getElementById('alarmCameraFilter');
+        const alarmLevelFilterEl = document.getElementById('alarmLevelFilter');
+        const alarmOnlyFilterEl = document.getElementById('alarmOnlyFilter');
+        const btnApplyAlarmFilter = document.getElementById('btnApplyAlarmFilter');
+        const btnResetAlarmFilter = document.getElementById('btnResetAlarmFilter');
+        const btnOpenFaceManager = document.getElementById('btnOpenFaceManager');
+        const btnCloseFaceManager = document.getElementById('btnCloseFaceManager');
+        const faceModalEl = document.getElementById('faceModal');
         const btnClosePreview = document.getElementById('btnClosePreview');
         const kbPreviewBoxEl = document.getElementById('kbPreviewBox');
         const kbPreviewTitleEl = document.getElementById('kbPreviewTitle');
         const kbPreviewContentEl = document.getElementById('kbPreviewContent');
+        const sourceListEl = document.getElementById('sourceList');
+        const sourceEditorEl = document.getElementById('sourceEditor');
+        const sourceCurrentNameEl = document.getElementById('sourceCurrentName');
+        const btnLoadSource = document.getElementById('btnLoadSource');
+        const btnSaveSource = document.getElementById('btnSaveSource');
+        const btnDeleteSource = document.getElementById('btnDeleteSource');
+        const faceWhitelistListEl = document.getElementById('faceWhitelistList');
+        const faceActionStatusEl = document.getElementById('faceActionStatus');
+        const btnLoadWhitelist = document.getElementById('btnLoadWhitelist');
+        const btnRefreshWhitelistRuntime = document.getElementById('btnRefreshWhitelistRuntime');
+        const btnUploadWhitelist = document.getElementById('btnUploadWhitelist');
+        const faceIdentityInput = document.getElementById('faceIdentityInput');
+        const faceUploadInput = document.getElementById('faceUploadInput');
         let currentPreviewFile = null;
+        let currentSourceFile = null;
         let cameraStatsCache = {};
+        let currentAlarmHistory = [];
+        let currentAlarmHistoryFilter = { isAlarmOnly: false, cameraId: '', alarmLevel: '' };
+        let currentAlarmRecordKey = null;
+
+        const MODEL_OPTIONS = {
+            aliyun: {
+                vision: ['qwen-vl-max-latest', 'qwen-vl-plus-latest', 'qwen3-vl-8b-thinking'],
+                reasoning: ['qwen-plus-latest', 'qwen-max-latest', 'qwen2.5-7b-instruct']
+            },
+            ollama: {
+                vision: ['qwen3-vl:4b', 'qwen3-vl:8b', 'qwen2.5vl:7b'],
+                reasoning: ['qwen3:4b', 'qwen2.5:7b', 'reasoning-finetuned:latest', 'deepseek-r1:1.5b', 'deepseek-r1:7b', 'deepseek-r1:14b']
+            }
+        };
+
+        function openKbManager() {
+            kbModalEl.classList.add('active');
+            loadPendFiles();
+            loadSourceFiles();
+        }
+
+        function closeKbManager() {
+            clearPreview();
+            resetPreviewButtons();
+            currentSourceFile = null;
+            sourceCurrentNameEl.textContent = '当前文件: 未选择';
+            sourceEditorEl.value = '';
+            kbModalEl.classList.remove('active');
+        }
+
+        function openCameraManager() {
+            cameraModalEl.classList.add('active');
+            loadCameraManager();
+        }
+
+        function closeCameraManager() {
+            cameraModalEl.classList.remove('active');
+        }
+
+        function openAlarmHistory() {
+            alarmModalEl.classList.add('active');
+            syncAlarmFilterOptions();
+            syncAlarmFilterState();
+            loadAlarmHistory();
+        }
+
+        function closeAlarmHistory() {
+            alarmModalEl.classList.remove('active');
+        }
+
+        function openFaceManager() {
+            faceModalEl.classList.add('active');
+            loadWhitelist();
+        }
+
+        function closeFaceManager() {
+            faceModalEl.classList.remove('active');
+        }
+
+        function setModelStatus(text, isError = false) {
+            modelSwitchStatusEl.textContent = text;
+            modelSwitchStatusEl.style.color = isError ? '#c92a2a' : '#2b8a3e';
+        }
+
+        function ensureSelectOption(selectEl, value) {
+            if (!selectEl || !value) {
+                return;
+            }
+            const exists = Array.from(selectEl.options).some((opt) => opt.value === value);
+            if (!exists) {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                selectEl.appendChild(option);
+            }
+        }
+
+        function populateModelSelects(provider, currentVision = '', currentReasoning = '') {
+            const safeProvider = (provider || 'aliyun').toLowerCase();
+            const options = MODEL_OPTIONS[safeProvider] || MODEL_OPTIONS.aliyun;
+
+            modelVisionSelectEl.innerHTML = options.vision.map((m) => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+            modelReasoningSelectEl.innerHTML = options.reasoning.map((m) => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+
+            ensureSelectOption(modelVisionSelectEl, currentVision);
+            ensureSelectOption(modelReasoningSelectEl, currentReasoning);
+
+            if (currentVision) {
+                modelVisionSelectEl.value = currentVision;
+            }
+            if (currentReasoning) {
+                modelReasoningSelectEl.value = currentReasoning;
+            }
+        }
+
+        function formatPercent(value) {
+            const num = Number(value);
+            if (!Number.isFinite(num)) {
+                return '--';
+            }
+            return `${num.toFixed(1)}%`;
+        }
+
+        function formatGpuVramInfo(gpuVram) {
+            if (!gpuVram || gpuVram.available === false) {
+                return '不可用';
+            }
+            const used = Number(gpuVram.vram_used_gb || 0).toFixed(2);
+            const total = Number(gpuVram.vram_total_gb || 0).toFixed(2);
+            const free = Number(gpuVram.vram_free_gb || 0).toFixed(2);
+            const percent = formatPercent(gpuVram.vram_percent);
+            const name = gpuVram.gpu_name || 'GPU';
+            return `${name} ${percent} (${used}GB / ${total}GB, 剩余 ${free}GB)`;
+        }
+
+        async function refreshSystemStatusCards() {
+            try {
+                const [statusResp, configResp] = await Promise.all([
+                    fetch('/api/system/status'),
+                    fetch('/api/system/config')
+                ]);
+                const [statusData, configData] = await Promise.all([statusResp.json(), configResp.json()]);
+
+                if (statusResp.ok && statusData.system) {
+                    const cpu = formatPercent(statusData.system.cpu_percent);
+                    systemCpuValueEl.textContent = cpu;
+                    systemMemoryValueEl.textContent = formatGpuVramInfo(statusData.system.gpu_vram);
+                } else {
+                    systemCpuValueEl.textContent = '--';
+                    systemMemoryValueEl.textContent = '加载失败';
+                }
+
+                if (configResp.ok) {
+                    const provider = configData.model_provider || '--';
+                    const vision = configData.vision_model || '--';
+                    const reasoning = configData.reasoning_model || '--';
+                    systemModelValueEl.textContent = `${provider} | V:${vision} | R:${reasoning}`;
+                } else {
+                    systemModelValueEl.textContent = '加载失败';
+                }
+            } catch (e) {
+                systemCpuValueEl.textContent = '--';
+                systemMemoryValueEl.textContent = '加载失败';
+                systemModelValueEl.textContent = '加载失败';
+                console.error('刷新系统状态卡片失败:', e);
+            }
+        }
+
+        async function loadModelConfig() {
+            try {
+                setModelStatus('正在加载当前模型配置...');
+                const resp = await fetch('/api/system/config');
+                const data = await resp.json();
+                if (!resp.ok) {
+                    throw new Error(data.detail || '加载模型配置失败');
+                }
+                const provider = data.model_provider || 'aliyun';
+                const visionModel = data.vision_model || '';
+                const reasoningModel = data.reasoning_model || '';
+
+                modelProviderSelectEl.value = provider;
+                populateModelSelects(provider, visionModel, reasoningModel);
+                modelCurrentInfoEl.textContent = `当前模型：provider=${provider}，vision=${visionModel}，reasoning=${reasoningModel}`;
+                setModelStatus('模型配置已加载');
+            } catch (e) {
+                modelCurrentInfoEl.textContent = '当前模型：加载失败';
+                setModelStatus(`加载失败: ${e.message}`, true);
+            }
+        }
+
+        async function applyModelSwitch() {
+            const provider = modelProviderSelectEl.value;
+            const vision_model = (modelVisionSelectEl.value || '').trim();
+            const reasoning_model = (modelReasoningSelectEl.value || '').trim();
+
+            if (!provider) {
+                setModelStatus('请选择模型提供方', true);
+                return;
+            }
+
+            try {
+                btnApplyModelSwitch.disabled = true;
+                setModelStatus('正在切换模型，请稍候...');
+                const resp = await fetch('/api/system/model/switch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider, vision_model, reasoning_model }),
+                });
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || data.message || '切换失败');
+                }
+                const current = data.data || {};
+                modelCurrentInfoEl.textContent = `当前模型：provider=${current.provider}，vision=${current.vision_model}，reasoning=${current.reasoning_model}`;
+                setModelStatus('模型切换成功');
+                await refreshSystemStatusCards();
+                await refreshResultPanels();
+            } catch (e) {
+                setModelStatus(`切换失败: ${e.message}`, true);
+            } finally {
+                btnApplyModelSwitch.disabled = false;
+            }
+        }
+
+        function openModelManager() {
+            modelModalEl.classList.add('active');
+            loadModelConfig();
+        }
+
+        function closeModelManager() {
+            modelModalEl.classList.remove('active');
+        }
 
         function escapeHtml(text) {
             return String(text)
@@ -696,8 +1828,9 @@
             const renderedContent = markdownRenderer.renderResultContent(result);
 
             const cameraLabel = result.camera_id ? `📷 ${result.camera_id} ` : '';
+            const topTime = result.frame_timestamp || result.timestamp || new Date().toLocaleTimeString();
             resultElement.innerHTML = `
-                <div class="result-time">${cameraLabel}🕒 ${result.timestamp || new Date().toLocaleTimeString()}</div>
+                <div class="result-time">${cameraLabel}🕒 ${topTime}</div>
                 <div class="result-content">${renderedContent}</div>
             `;
 
@@ -721,12 +1854,42 @@
             }
         }
 
+        function clearResultPanels() {
+            if (resultsContainerCam1) {
+                resultsContainerCam1.innerHTML = '';
+            }
+            if (resultsContainerCam2) {
+                resultsContainerCam2.innerHTML = '';
+            }
+        }
+
+        async function refreshResultPanels() {
+            try {
+                const resp = await fetch('/api/alarms/history?limit=30');
+                const data = await resp.json();
+                if (!resp.ok) {
+                    throw new Error(data.detail || '获取历史日志失败');
+                }
+
+                const records = Array.isArray(data.data) ? data.data.slice().reverse() : [];
+                clearResultPanels();
+                records.forEach((record) => addResult(record));
+            } catch (e) {
+                console.error('刷新结果面板失败:', e);
+            }
+        }
+
         function renderCameras(cameras) {
             cameraGrid.innerHTML = '';
 
             cameras.forEach((camera) => {
+                const isRunning = camera.is_running !== false;
+                const analysisEnabled = camera.analysis_enabled !== false;
                 const card = document.createElement('div');
                 card.className = 'camera-card';
+                if (!analysisEnabled) {
+                    card.classList.add('camera-stopped');
+                }
                 card.dataset.cameraId = camera.id;
 
                 const title = document.createElement('div');
@@ -744,19 +1907,30 @@
 
                 const loading = document.createElement('div');
                 loading.className = 'camera-loading pulse';
-                loading.textContent = '正在加载视频流...';
+                loading.textContent = analysisEnabled ? '正在加载视频流...' : '分析已暂停';
+                if (!analysisEnabled) {
+                    loading.classList.remove('pulse');
+                    loading.style.color = '#ffd43b';
+                }
 
                 const img = document.createElement('img');
                 img.className = 'camera-stream';
                 img.alt = `视频流-${camera.id}`;
                 img.dataset.cameraId = camera.id;
-                img.src = `/api/video/feed/${camera.id}`;
+                if (isRunning) {
+                    img.src = `/api/video/feed/${camera.id}`;
+                }
 
                 img.onload = function() {
-                    loading.style.display = 'none';
+                    if (isRunning) {
+                        loading.style.display = 'none';
+                    }
                 };
 
                 img.onerror = function() {
+                    if (!isRunning) {
+                        return;
+                    }
                     loading.textContent = '⚠️ 视频流加载失败';
                     loading.classList.remove('pulse');
                     loading.style.color = '#ff6b6b';
@@ -781,6 +1955,11 @@
         function setKbStatus(text, isError = false) {
             kbActionStatusEl.textContent = text;
             kbActionStatusEl.style.color = isError ? '#c92a2a' : '#2b8a3e';
+        }
+
+        function setFaceStatus(text, isError = false) {
+            faceActionStatusEl.textContent = text;
+            faceActionStatusEl.style.color = isError ? '#c92a2a' : '#2b8a3e';
         }
 
         function formatSeconds(value) {
@@ -811,11 +1990,12 @@
                 const stats = cameraStatsCache[cameraId];
                 const fpsText = stats ? Number(stats.fps || 0).toFixed(2) : '--';
                 const delayText = stats ? formatDelay(stats.frame_delay_seconds) : '--';
-                const status = stats?.connection_status || 'offline';
+                const status = stats?.analysis_enabled === false ? 'stopped' : (stats?.connection_status || 'offline');
                 const statusMap = {
                     online: '在线',
                     reconnecting: '重连中',
-                    offline: '离线'
+                    offline: '离线',
+                    stopped: '已关闭'
                 };
                 const statusText = statusMap[status] || '离线';
                 overlay.innerHTML = `
@@ -823,6 +2003,23 @@
                     <div class="camera-stats-line"><span class="camera-stats-label">画面延迟</span><span class="camera-stats-value">${delayText}</span></div>
                     <div class="camera-stats-line"><span class="camera-stats-label">状态</span><span class="camera-stats-value ${status}">${statusText}</span></div>
                 `;
+            });
+
+            document.querySelectorAll('.camera-card').forEach((card) => {
+                const cameraId = card.dataset.cameraId;
+                const stats = cameraStatsCache[cameraId];
+                const isRunning = stats?.is_running !== false;
+                const analysisEnabled = stats?.analysis_enabled !== false;
+                const img = card.querySelector('.camera-stream');
+                const loading = card.querySelector('.camera-loading');
+                if (img) {
+                    img.style.opacity = analysisEnabled ? '1' : '0.35';
+                }
+                if (loading && !analysisEnabled) {
+                    loading.textContent = '分析已暂停';
+                    loading.classList.remove('pulse');
+                    loading.style.color = '#ffd43b';
+                }
             });
         }
 
@@ -836,6 +2033,271 @@
                 applyCameraStats(data.metrics || {});
             } catch (e) {
                 console.error('加载摄像头指标失败:', e);
+            }
+        }
+
+        function renderCameraManager(cameras) {
+            if (!Array.isArray(cameras) || cameras.length === 0) {
+                cameraManagerListEl.innerHTML = '<div class="status">暂无可用摄像头</div>';
+                return;
+            }
+
+            cameraManagerListEl.innerHTML = cameras.map((camera) => {
+                const stats = camera.stats || {};
+                const analysisEnabled = camera.analysis_enabled !== false;
+                const status = analysisEnabled ? (stats.connection_status || 'offline') : 'stopped';
+                const statusTextMap = {
+                    online: '在线',
+                    reconnecting: '重连中',
+                    offline: '离线',
+                    stopped: '已关闭'
+                };
+                const actionText = analysisEnabled ? '关闭摄像头' : '开启摄像头';
+                const safeName = escapeHtml(camera.name || camera.id || 'unknown');
+                const safeId = escapeHtml(camera.id || '');
+                const fpsText = Number(stats.fps || 0).toFixed(2);
+                const delayText = formatDelay(stats.frame_delay_seconds);
+                return `
+                    <div class="camera-manager-item ${analysisEnabled ? 'active' : ''}" data-camera-id="${safeId}">
+                        <div class="camera-manager-meta">
+                            <div class="camera-manager-name">${safeName}</div>
+                            <div class="camera-manager-sub">ID: ${safeId} · FPS: ${fpsText} · 延迟: ${delayText}</div>
+                            <span class="camera-manager-status ${status}">${statusTextMap[status] || '离线'}</span>
+                        </div>
+                        <div class="camera-manager-actions">
+                            <button type="button" class="kb-btn ${analysisEnabled ? 'warning' : 'success'} camera-toggle-btn" data-camera-id="${safeId}" data-running="${analysisEnabled ? '1' : '0'}">${actionText}</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function alarmBadgeClass(record) {
+            if (record?.is_alarm !== '是') {
+                return 'none';
+            }
+            const level = record?.alarm_level || '无';
+            if (level === '紧急') return 'critical';
+            if (level === '严重') return 'severe';
+            return 'general';
+        }
+
+        function alarmRecordKey(record) {
+            return `${record.timestamp || ''}__${record.case_id || ''}__${record.camera_id || ''}`;
+        }
+
+        function syncAlarmFilterOptions() {
+            if (!alarmCameraFilterEl) {
+                return;
+            }
+
+            const seen = new Set();
+            const cameraIds = [];
+
+            Object.keys(cameraStatsCache || {}).forEach((cameraId) => {
+                if (cameraId && !seen.has(cameraId)) {
+                    seen.add(cameraId);
+                    cameraIds.push(cameraId);
+                }
+            });
+
+            document.querySelectorAll('.camera-card').forEach((card) => {
+                const cameraId = card.dataset.cameraId;
+                if (cameraId && !seen.has(cameraId)) {
+                    seen.add(cameraId);
+                    cameraIds.push(cameraId);
+                }
+            });
+
+            if (cameraIds.length === 0) {
+                cameraIds.push('cam1', 'cam2');
+            }
+
+            const currentValue = alarmCameraFilterEl.value;
+            alarmCameraFilterEl.innerHTML = '<option value="">全部摄像头</option>' + cameraIds.map((cameraId) => `<option value="${escapeHtml(cameraId)}">${escapeHtml(cameraId)}</option>`).join('');
+            if (currentValue && cameraIds.includes(currentValue)) {
+                alarmCameraFilterEl.value = currentValue;
+            }
+        }
+
+        function syncAlarmFilterState() {
+            if (alarmCameraFilterEl) {
+                alarmCameraFilterEl.value = currentAlarmHistoryFilter.cameraId || '';
+            }
+            if (alarmLevelFilterEl) {
+                alarmLevelFilterEl.value = currentAlarmHistoryFilter.alarmLevel || '';
+            }
+            if (alarmOnlyFilterEl) {
+                alarmOnlyFilterEl.checked = !!currentAlarmHistoryFilter.isAlarmOnly;
+            }
+        }
+
+        function renderAlarmHistory(records) {
+            currentAlarmHistory = Array.isArray(records) ? records : [];
+            if (currentAlarmHistory.length === 0) {
+                alarmListEl.innerHTML = '<div class="status">暂无报警历史</div>';
+                alarmDetailEl.innerHTML = '<div class="alarm-detail-empty">暂无历史记录</div>';
+                currentAlarmRecordKey = null;
+                return;
+            }
+
+            alarmListEl.innerHTML = currentAlarmHistory.map((record, index) => {
+                const key = alarmRecordKey(record) || String(index);
+                const isAlarm = record.is_alarm === '是' || (record.alarm_level && record.alarm_level !== '无');
+                const safeTitle = escapeHtml(isAlarm ? (record.alarm_reason || '未命名报警') : '正常记录');
+                const safeCamera = escapeHtml(record.camera_id || 'unknown');
+                const safeTime = escapeHtml(record.timestamp || '');
+                const safeLevel = escapeHtml(record.alarm_level || '无');
+                const safeConfidence = Number(record.confidence || 0).toFixed(2);
+                const safeImage = record.image_url ? '有图片' : '无图片';
+                const badgeClass = alarmBadgeClass(record);
+                const summaryText = isAlarm
+                    ? (record.scene_summary || record.alarm_reason || '')
+                    : (record.scene_summary || '');
+                return `
+                    <div class="alarm-item ${key === currentAlarmRecordKey ? 'active' : ''}" data-key="${escapeHtml(key)}">
+                        <div class="alarm-item-top">
+                            <span>${safeTime}</span>
+                            <span>${safeCamera}</span>
+                        </div>
+                        <div class="alarm-item-title">
+                            <span class="alarm-item-badge ${badgeClass}">${safeLevel}</span>${safeTitle}
+                        </div>
+                        <div class="alarm-item-sub">
+                            置信度: ${safeConfidence}<br>
+                            ${safeImage}<br>
+                            ${escapeHtml(summaryText.slice(0, 100))}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (!currentAlarmRecordKey) {
+                selectAlarmRecord(currentAlarmHistory[0]);
+            } else {
+                const current = currentAlarmHistory.find((record, index) => alarmRecordKey(record) === currentAlarmRecordKey || String(index) === currentAlarmRecordKey);
+                selectAlarmRecord(current || currentAlarmHistory[0]);
+            }
+        }
+
+        function renderAlarmDetail(record) {
+            if (!record) {
+                alarmDetailEl.innerHTML = '<div class="alarm-detail-empty">请选择左侧一条历史记录查看图片和详情</div>';
+                return;
+            }
+
+            const isAlarm = record.is_alarm === '是' || (record.alarm_level && record.alarm_level !== '无');
+            const reasonLabel = isAlarm ? '报警原因' : '状态说明';
+
+            const detailLines = [];
+            detailLines.push(`时间: ${record.timestamp || '--'}`);
+            detailLines.push(`摄像头: ${record.camera_id || '--'}`);
+            detailLines.push(`级别: ${record.alarm_level || '无'}`);
+            detailLines.push(`是否报警: ${record.is_alarm || '否'}`);
+            detailLines.push(`置信度: ${Number(record.confidence || 0).toFixed(2)}`);
+            if (isAlarm) {
+                detailLines.push(`${reasonLabel}: ${record.alarm_reason || '--'}`);
+            }
+            detailLines.push(`模型: ${record.model_version || '--'}`);
+            if (record.vision_facts) {
+                detailLines.push(`视觉: ${record.vision_facts.scene_summary || '--'}`);
+            }
+
+            const imageBlock = record.image_url
+                ? `<img class="alarm-image" src="${record.image_url}" alt="报警图片">`
+                : '<div class="alarm-detail-empty">当前记录没有报警图片</div>';
+
+            alarmDetailEl.innerHTML = `
+                <div class="alarm-detail-head">
+                    <div>
+                        <div class="alarm-detail-title">${escapeHtml(isAlarm ? (record.alarm_reason || '报警历史详情') : '状态详情')}</div>
+                        <div class="alarm-detail-meta">${escapeHtml(record.scene_summary || '')}</div>
+                    </div>
+                </div>
+                ${imageBlock}
+                <div class="alarm-detail-text">${escapeHtml(detailLines.join('\n'))}</div>
+            `;
+        }
+
+        function selectAlarmRecord(record) {
+            if (!record) {
+                renderAlarmDetail(null);
+                return;
+            }
+            currentAlarmRecordKey = alarmRecordKey(record);
+            renderAlarmDetail(record);
+            document.querySelectorAll('.alarm-item').forEach((el) => {
+                el.classList.toggle('active', el.getAttribute('data-key') === currentAlarmRecordKey);
+            });
+        }
+
+        async function loadAlarmHistory(isAlarmOnly = null) {
+            try {
+                if (isAlarmOnly !== null) {
+                    currentAlarmHistoryFilter.isAlarmOnly = isAlarmOnly;
+                }
+                currentAlarmHistoryFilter.cameraId = alarmCameraFilterEl?.value || '';
+                currentAlarmHistoryFilter.alarmLevel = alarmLevelFilterEl?.value || '';
+                const onlyAlarm = alarmOnlyFilterEl?.checked ?? false;
+                currentAlarmHistoryFilter.isAlarmOnly = onlyAlarm;
+
+                alarmListEl.innerHTML = '<div class="status">正在加载报警历史...</div>';
+                alarmDetailEl.innerHTML = '<div class="alarm-detail-empty">正在加载详情...</div>';
+                const params = new URLSearchParams();
+                params.set('limit', '100');
+                if (currentAlarmHistoryFilter.isAlarmOnly) {
+                    params.set('is_alarm_only', 'true');
+                }
+                if (currentAlarmHistoryFilter.cameraId) {
+                    params.set('camera_id', currentAlarmHistoryFilter.cameraId);
+                }
+                if (currentAlarmHistoryFilter.alarmLevel) {
+                    params.set('alarm_level', currentAlarmHistoryFilter.alarmLevel);
+                }
+
+                const url = `/api/alarms/history?${params.toString()}`;
+                const resp = await fetch(url);
+                const data = await resp.json();
+                if (!resp.ok) {
+                    throw new Error(data.detail || '加载失败');
+                }
+                renderAlarmHistory(data.data || []);
+            } catch (e) {
+                alarmListEl.innerHTML = '<div class="status">报警历史加载失败</div>';
+                alarmDetailEl.innerHTML = `<div class="alarm-detail-empty">加载失败: ${escapeHtml(e.message)}</div>`;
+            }
+        }
+
+        async function loadCameraManager() {
+            try {
+                cameraManagerListEl.innerHTML = '<div class="status">正在加载摄像头列表...</div>';
+                const resp = await fetch('/api/system/cameras');
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || '加载失败');
+                }
+                renderCameraManager(data.data || []);
+            } catch (e) {
+                cameraManagerListEl.innerHTML = '<div class="status">摄像头列表加载失败</div>';
+            }
+        }
+
+        async function toggleCamera(cameraId, running) {
+            const action = running ? 'stop' : 'start';
+            const actionLabel = running ? '关闭' : '开启';
+            try {
+                const resp = await fetch(`/api/system/camera/${encodeURIComponent(cameraId)}/${action}`, {
+                    method: 'POST',
+                });
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || `${actionLabel}失败`);
+                }
+                await loadCameraManager();
+                await loadCameraMetrics();
+                await loadCameras();
+            } catch (e) {
+                alert(`${actionLabel}摄像头 ${cameraId} 失败: ${e.message}`);
             }
         }
 
@@ -958,6 +2420,7 @@
                 setKbStatus(`导入完成: 成功 ${data.imported_count}，跳过 ${data.skipped.length}`);
                 clearPreview();
                 await loadPendFiles();
+                await loadSourceFiles();
             } catch (e) {
                 setKbStatus(`导入失败: ${e.message}`, true);
             } finally {
@@ -1018,6 +2481,260 @@
             }
         }
 
+        async function loadSourceFiles() {
+            try {
+                const resp = await fetch('/api/kb/source-files');
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || '加载失败');
+                }
+
+                if (!Array.isArray(data.files) || data.files.length === 0) {
+                    sourceListEl.innerHTML = '<div class="status">source 目录暂无文件</div>';
+                    currentSourceFile = null;
+                    sourceCurrentNameEl.textContent = '当前文件: 未选择';
+                    sourceEditorEl.value = '';
+                    return;
+                }
+
+                sourceListEl.innerHTML = data.files.map((f) => {
+                    const safeName = escapeHtml(f.name || '');
+                    const encoded = encodeURIComponent(f.name || '');
+                    return `<div class="kb-source-item" data-file="${encoded}" title="${safeName}">${safeName}</div>`;
+                }).join('');
+
+                if (currentSourceFile) {
+                    const exists = data.files.some((f) => f.name === currentSourceFile);
+                    if (!exists) {
+                        currentSourceFile = null;
+                        sourceCurrentNameEl.textContent = '当前文件: 未选择';
+                        sourceEditorEl.value = '';
+                    }
+                }
+                updateSourceListActive();
+            } catch (e) {
+                sourceListEl.innerHTML = '<div class="status">source 文件列表加载失败</div>';
+                setKbStatus(`source 列表加载失败: ${e.message}`, true);
+            }
+        }
+
+        function updateSourceListActive() {
+            sourceListEl.querySelectorAll('.kb-source-item').forEach((el) => {
+                const fileName = decodeURIComponent(el.getAttribute('data-file') || '');
+                if (fileName === currentSourceFile) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+        }
+
+        async function previewSourceFile(fileName) {
+            try {
+                const resp = await fetch(`/api/kb/source-preview?name=${encodeURIComponent(fileName)}`);
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || '预览失败');
+                }
+
+                currentSourceFile = data.name;
+                sourceCurrentNameEl.textContent = `当前文件: ${data.name}`;
+                sourceEditorEl.value = data.content || '';
+                updateSourceListActive();
+            } catch (e) {
+                setKbStatus(`source 预览失败: ${e.message}`, true);
+            }
+        }
+
+        async function saveCurrentSourceFile() {
+            if (!currentSourceFile) {
+                setKbStatus('请先选择要保存的 source 文件', true);
+                return;
+            }
+
+            try {
+                btnSaveSource.disabled = true;
+                setKbStatus(`正在保存: ${currentSourceFile} ...`);
+                const resp = await fetch('/api/kb/source-update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: currentSourceFile,
+                        content: sourceEditorEl.value,
+                    }),
+                });
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || '保存失败');
+                }
+                setKbStatus(`保存成功: ${currentSourceFile}`);
+                await loadSourceFiles();
+            } catch (e) {
+                setKbStatus(`保存失败: ${e.message}`, true);
+            } finally {
+                btnSaveSource.disabled = false;
+            }
+        }
+
+        async function deleteCurrentSourceFile() {
+            if (!currentSourceFile) {
+                setKbStatus('请先选择要删除的 source 文件', true);
+                return;
+            }
+
+            if (!window.confirm(`确认删除现有知识库文件？\n${currentSourceFile}`)) {
+                return;
+            }
+
+            try {
+                btnDeleteSource.disabled = true;
+                setKbStatus(`正在删除: ${currentSourceFile} ...`);
+                const resp = await fetch('/api/kb/source-delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ files: [currentSourceFile] }),
+                });
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || '删除失败');
+                }
+
+                if ((data.deleted || []).includes(currentSourceFile)) {
+                    setKbStatus(`删除成功: ${currentSourceFile}`);
+                    currentSourceFile = null;
+                    sourceCurrentNameEl.textContent = '当前文件: 未选择';
+                    sourceEditorEl.value = '';
+                    await loadSourceFiles();
+                } else {
+                    const reason = (data.skipped && data.skipped[0] && data.skipped[0].reason) || '未知原因';
+                    throw new Error(reason);
+                }
+            } catch (e) {
+                setKbStatus(`删除失败: ${e.message}`, true);
+            } finally {
+                btnDeleteSource.disabled = false;
+            }
+        }
+
+        async function loadWhitelist() {
+            try {
+                setFaceStatus('正在加载白名单...');
+                const resp = await fetch('/api/faces/whitelist');
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || '加载白名单失败');
+                }
+
+                if (!Array.isArray(data.files) || data.files.length === 0) {
+                    faceWhitelistListEl.innerHTML = '<div class="status">白名单为空，请先上传图片</div>';
+                    setFaceStatus('白名单为空');
+                    return;
+                }
+
+                faceWhitelistListEl.innerHTML = data.files.map((f) => {
+                    const safeName = escapeHtml(f.name || '');
+                    const safeIdentity = escapeHtml(f.identity || 'unknown');
+                    const encodedName = encodeURIComponent(f.name || '');
+                    return `
+                    <label class="face-item">
+                        <span class="face-identity-tag">${safeIdentity}</span>
+                        <span class="face-name" title="${safeName}">${safeName}</span>
+                        <button type="button" class="face-delete-btn" data-file="${encodedName}">删除</button>
+                    </label>`;
+                }).join('');
+
+                setFaceStatus(`已加载 ${data.identity_count} 人，模板图 ${data.file_count} 张`);
+            } catch (e) {
+                faceWhitelistListEl.innerHTML = '<div class="status">白名单加载失败</div>';
+                setFaceStatus(`加载失败: ${e.message}`, true);
+            }
+        }
+
+        async function refreshWhitelistRuntime() {
+            try {
+                btnRefreshWhitelistRuntime.disabled = true;
+                setFaceStatus('正在刷新运行时白名单...');
+                const resp = await fetch('/api/faces/refresh', { method: 'POST' });
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || '刷新失败');
+                }
+                setFaceStatus(`已刷新：${data.identity_count} 人，${data.file_count} 张模板图`);
+            } catch (e) {
+                setFaceStatus(`刷新失败: ${e.message}`, true);
+            } finally {
+                btnRefreshWhitelistRuntime.disabled = false;
+            }
+        }
+
+        async function uploadWhitelistFiles() {
+            const files = faceUploadInput.files;
+            if (!files || files.length === 0) {
+                setFaceStatus('请先选择图片文件', true);
+                return;
+            }
+
+            const formData = new FormData();
+            Array.from(files).forEach((file) => formData.append('files', file));
+
+            const identity = (faceIdentityInput.value || '').trim();
+            if (identity) {
+                formData.append('identity', identity);
+            }
+
+            try {
+                btnUploadWhitelist.disabled = true;
+                setFaceStatus(`正在上传 ${files.length} 张图片...`);
+                const resp = await fetch('/api/faces/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || '上传失败');
+                }
+
+                setFaceStatus(`上传完成：成功 ${data.saved_count}，跳过 ${(data.skipped || []).length}`);
+                faceUploadInput.value = '';
+                await refreshWhitelistRuntime();
+                await loadWhitelist();
+            } catch (e) {
+                setFaceStatus(`上传失败: ${e.message}`, true);
+            } finally {
+                btnUploadWhitelist.disabled = false;
+            }
+        }
+
+        async function deleteWhitelistFile(fileName) {
+            if (!window.confirm(`确认删除白名单文件？\n${fileName}`)) {
+                return;
+            }
+
+            try {
+                setFaceStatus(`正在删除 ${fileName} ...`);
+                const resp = await fetch('/api/faces/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ files: [fileName] }),
+                });
+                const data = await resp.json();
+                if (!resp.ok || data.status !== 'success') {
+                    throw new Error(data.detail || '删除失败');
+                }
+
+                if ((data.deleted || []).includes(fileName)) {
+                    setFaceStatus(`删除成功: ${fileName}`);
+                    await refreshWhitelistRuntime();
+                    await loadWhitelist();
+                } else {
+                    const reason = (data.skipped && data.skipped[0] && data.skipped[0].reason) || '未知原因';
+                    throw new Error(reason);
+                }
+            } catch (e) {
+                setFaceStatus(`删除失败: ${e.message}`, true);
+            }
+        }
+
         async function loadCameras() {
             try {
                 const response = await fetch('/api/system/cameras');
@@ -1040,18 +2757,63 @@
         document.addEventListener('DOMContentLoaded', function() {
             connectWebSocket();
             loadCameras();
-            loadPendFiles();
             loadCameraMetrics();
+            refreshSystemStatusCards();
+            refreshResultPanels();
 
             btnLoadPend.addEventListener('click', loadPendFiles);
             btnImportPend.addEventListener('click', importSelectedPendFiles);
             btnRebuildIndex.addEventListener('click', rebuildKbIndex);
+            btnLoadSource.addEventListener('click', loadSourceFiles);
+            btnSaveSource.addEventListener('click', saveCurrentSourceFile);
+            btnDeleteSource.addEventListener('click', deleteCurrentSourceFile);
+            btnOpenCameraManager.addEventListener('click', openCameraManager);
+            btnCloseCameraManager.addEventListener('click', closeCameraManager);
+            btnOpenAlarmHistory.addEventListener('click', openAlarmHistory);
+            btnCloseAlarmHistory.addEventListener('click', closeAlarmHistory);
+            btnOpenModelManager.addEventListener('click', openModelManager);
+            btnCloseModelManager.addEventListener('click', closeModelManager);
+            btnApplyModelSwitch.addEventListener('click', applyModelSwitch);
+            modelProviderSelectEl.addEventListener('change', () => {
+                populateModelSelects(modelProviderSelectEl.value);
+            });
+            btnLoadAlarmHistory.addEventListener('click', () => {
+                if (alarmOnlyFilterEl) {
+                    alarmOnlyFilterEl.checked = false;
+                }
+                loadAlarmHistory(false);
+            });
+            btnLoadOnlyAlarmHistory.addEventListener('click', () => {
+                if (alarmOnlyFilterEl) {
+                    alarmOnlyFilterEl.checked = true;
+                }
+                loadAlarmHistory(true);
+            });
+            btnApplyAlarmFilter.addEventListener('click', () => {
+                currentAlarmHistoryFilter.cameraId = alarmCameraFilterEl?.value || '';
+                currentAlarmHistoryFilter.alarmLevel = alarmLevelFilterEl?.value || '';
+                currentAlarmHistoryFilter.isAlarmOnly = alarmOnlyFilterEl?.checked ?? false;
+                loadAlarmHistory();
+            });
+            btnResetAlarmFilter.addEventListener('click', () => {
+                currentAlarmHistoryFilter = { isAlarmOnly: false, cameraId: '', alarmLevel: '' };
+                syncAlarmFilterState();
+                loadAlarmHistory(false);
+            });
+            btnOpenKbManager.addEventListener('click', openKbManager);
+            btnCloseKbManager.addEventListener('click', closeKbManager);
+            btnOpenFaceManager.addEventListener('click', openFaceManager);
+            btnCloseFaceManager.addEventListener('click', closeFaceManager);
+            btnLoadWhitelist.addEventListener('click', loadWhitelist);
+            btnRefreshWhitelistRuntime.addEventListener('click', refreshWhitelistRuntime);
+            btnUploadWhitelist.addEventListener('click', uploadWhitelistFiles);
             btnClosePreview.addEventListener('click', () => {
                 clearPreview();
                 resetPreviewButtons();
             });
 
             setInterval(loadCameraMetrics, 10000);
+            setInterval(refreshSystemStatusCards, 10000);
 
             pendListEl.addEventListener('click', (event) => {
                 const target = event.target;
@@ -1066,6 +2828,79 @@
                     if (fileName) {
                         deletePendFile(fileName);
                     }
+                }
+            });
+
+            sourceListEl.addEventListener('click', (event) => {
+                const target = event.target;
+                if (target && target.classList.contains('kb-source-item')) {
+                    const fileName = decodeURIComponent(target.getAttribute('data-file') || '');
+                    if (fileName) {
+                        previewSourceFile(fileName);
+                    }
+                }
+            });
+
+            faceWhitelistListEl.addEventListener('click', (event) => {
+                const target = event.target;
+                if (target && target.classList.contains('face-delete-btn')) {
+                    const fileName = decodeURIComponent(target.getAttribute('data-file') || '');
+                    if (fileName) {
+                        deleteWhitelistFile(fileName);
+                    }
+                }
+            });
+
+            cameraManagerListEl.addEventListener('click', (event) => {
+                const target = event.target;
+                if (target && target.classList.contains('camera-toggle-btn')) {
+                    const cameraId = target.getAttribute('data-camera-id') || '';
+                    const running = target.getAttribute('data-running') === '1';
+                    if (cameraId) {
+                        toggleCamera(cameraId, running);
+                    }
+                }
+            });
+
+            alarmListEl.addEventListener('click', (event) => {
+                const target = event.target.closest('.alarm-item');
+                if (!target) {
+                    return;
+                }
+                const key = target.getAttribute('data-key');
+                const record = currentAlarmHistory.find((item, index) => alarmRecordKey(item) === key || String(index) === key);
+                if (record) {
+                    selectAlarmRecord(record);
+                }
+            });
+
+            faceModalEl.addEventListener('click', (event) => {
+                if (event.target === faceModalEl) {
+                    closeFaceManager();
+                }
+            });
+
+            kbModalEl.addEventListener('click', (event) => {
+                if (event.target === kbModalEl) {
+                    closeKbManager();
+                }
+            });
+
+            cameraModalEl.addEventListener('click', (event) => {
+                if (event.target === cameraModalEl) {
+                    closeCameraManager();
+                }
+            });
+
+            alarmModalEl.addEventListener('click', (event) => {
+                if (event.target === alarmModalEl) {
+                    closeAlarmHistory();
+                }
+            });
+
+            modelModalEl.addEventListener('click', (event) => {
+                if (event.target === modelModalEl) {
+                    closeModelManager();
                 }
             });
             

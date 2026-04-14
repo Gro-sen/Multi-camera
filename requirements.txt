@@ -13,3 +13,7 @@ python-dotenv
 pydantic
 psutil
 playsound
+requests
+openai
+insightface
+onnxruntime-gpu

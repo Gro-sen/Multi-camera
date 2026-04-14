@@ -157,7 +157,7 @@ class KnowledgeBase:
             if os.path.exists(self.source_dir):
                 stats["total_documents"] = len([
                     f for f in os.listdir(self.source_dir) 
-                    if f.endswith('.md')
+                    if f.endswith('.md') or f.endswith('.json')
                 ])
             
             # 检查索引

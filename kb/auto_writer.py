@@ -2,18 +2,20 @@ import os
 import hashlib
 from datetime import datetime
 import json
+import logging
 
 KB_PEND_DIR = "kb/pend"
+logger = logging.getLogger(__name__)
 
 
 def write_case_to_pend(case: dict):
     """将推理案例写入待审核目录（Markdown格式，不触发索引重建）"""
     os.makedirs(KB_PEND_DIR, exist_ok=True)
 
-    # 调试输出（保留简洁日志）
+    # 调试输出（仅DEBUG时打印）
     if 'metadata' in case:
         try:
-            print(f"【AUTO_WRITER】metadata: {json.dumps(case['metadata'], ensure_ascii=False)}")
+            logger.debug(f"【AUTO_WRITER】metadata: {json.dumps(case['metadata'], ensure_ascii=False)}")
         except Exception:
             pass
 
@@ -118,9 +120,9 @@ def write_case_to_pend(case: dict):
 """
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
-    print(f"【待审核】案例已保存：{path}")
-    print(f"【知识库】模型: {model_used}, 参考案例数: {kb_cases_used}")
-    print("【待审核】未自动重建索引，请人工筛选后再导入 kb/source")
+    logger.debug(f"【待审核】案例已保存：{path}")
+    logger.debug(f"【知识库】模型: {model_used}, 参考案例数: {kb_cases_used}")
+    logger.debug("【待审核】未自动重建索引，请人工筛选后再导入 kb/source")
 
 
 def write_alarm_case_to_kb(case: dict):

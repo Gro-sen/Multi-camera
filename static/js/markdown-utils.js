@@ -79,15 +79,17 @@ class MarkdownRenderer {
             content += `**场景描述**: ${result.vision_analysis}\n\n`;
         }
         
+        const isAlarm = result.is_alarm === '是' || (result.alarm_level && result.alarm_level !== '无');
+
         // 添加报警信息
-        if (result.is_alarm && result.is_alarm === '是') {
+        if (isAlarm) {
             content += `**🚨 报警状态**: ${result.alarm_level || '未知'}级报警\n\n`;
         } else {
             content += `**✅ 报警状态**: 无报警\n\n`;
         }
         
-        // 添加报警原因
-        if (result.alarm_reason) {
+        // 仅报警时显示原因，无报警时完全隐藏该行
+        if (isAlarm && result.alarm_reason) {
             content += `**📋 报警原因**: ${result.alarm_reason}\n\n`;
         }
         
@@ -105,7 +107,7 @@ class MarkdownRenderer {
         if (result.confidence !== undefined) {
             content += `**📊 置信度**: ${(result.confidence * 100).toFixed(1)}%\n\n`;
         }
-        
+
         // 添加时间戳
         if (result.timestamp) {
             content += `*${result.timestamp}*`;

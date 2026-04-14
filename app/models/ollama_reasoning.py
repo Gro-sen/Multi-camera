@@ -8,6 +8,15 @@ from app.utils.ollama_client import OllamaClient
 logger = get_logger(__name__)
 
 
+def _clip_text(text: str, limit: int) -> str:
+    if text is None:
+        return ""
+    s = str(text)
+    if len(s) <= limit:
+        return s
+    return f"{s[:limit]} ...[truncated {len(s) - limit} chars]"
+
+
 def _clean_ollama_response(text: str) -> str:
     if not text:
         return ""
@@ -26,13 +35,16 @@ class OllamaReasoningModel:
             self.available = True
         except Exception:
             self.available = False
-        self.model = config.OLLAMA_REASONING_MODEL
+
+    def _get_model_name(self) -> str:
+        return os.getenv("OLLAMA_REASONING_MODEL", config.OLLAMA_REASONING_MODEL)
 
     def infer(self, facts: dict, cases: list, prompt: str) -> str:
         if not self.available:
             raise ModelException("推理模型不可用")
 
         try:
+            self.model = self._get_model_name()
             final_prompt = build_reasoning_prompt(prompt, facts, cases)
             try:
                 raw_output = self.client.generate(
@@ -46,9 +58,16 @@ class OllamaReasoningModel:
                     model=self.model,
                     prompt=final_prompt,
                 )
-            logger.info(f"【DEBUG】Ollama推理原始响应: {raw_output}")
-            logger.info(f"【DEBUG】打印final_prompt: {final_prompt}")
+            if config.DEBUG:
+                logger.debug("Ollama推理原始响应: %s", raw_output)
+                logger.debug("打印final_prompt: %s", final_prompt)
             cleaned = _clean_ollama_response(raw_output)
+            if config.LLM_OUTPUT_LOG_ENABLED:
+                logger.info(
+                    "Ollama推理模型输出[%s]: %s",
+                    self.model,
+                    _clip_text(cleaned, config.LLM_OUTPUT_LOG_MAX_CHARS),
+                )
             return cleaned
         except Exception as e:
             logger.error(f"Ollama推理失败: {e}", exc_info=True)

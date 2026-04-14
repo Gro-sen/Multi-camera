@@ -120,8 +120,8 @@ def build_index(data_dir='kb/source',
     dim = model.get_sentence_embedding_dimension()
     print(f"   模型维度: {dim}")
     
-    # 查找所有Markdown文件
-    files = glob.glob(os.path.join(data_dir, '*.md'))
+    # 查找所有可索引源文件
+    files = glob.glob(os.path.join(data_dir, '*.md')) + glob.glob(os.path.join(data_dir, '*.json'))
     
     if not files:
         print("⚠️  没有找到知识库文件")
