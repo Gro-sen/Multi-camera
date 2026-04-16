@@ -1825,12 +1825,26 @@
             resultElement.className = 'result-item';
 
             // 使用 markdown 渲染器处理内容
+
             const renderedContent = markdownRenderer.renderResultContent(result);
 
             const cameraLabel = result.camera_id ? `📷 ${result.camera_id} ` : '';
             const topTime = result.frame_timestamp || result.timestamp || new Date().toLocaleTimeString();
+
+            // 新增本地提醒字段展示
+            let localReminderHtml = '';
+            // 优先取顶层recommendation，其次analysis.recommendation，再取local_reminder
+            let recommendation = result.recommendation
+                || (result.analysis && result.analysis.recommendation)
+                || result.local_reminder;
+            // 仅当recommendation内容包含“提醒”关键词时才显示
+            if (recommendation && /提醒/.test(recommendation)) {
+                localReminderHtml = `<div class="local-reminder" style="color:#e67e22;font-weight:bold;margin:6px 0;">本地提醒：${recommendation}</div>`;
+            }
+
             resultElement.innerHTML = `
                 <div class="result-time">${cameraLabel}🕒 ${topTime}</div>
+                ${localReminderHtml}
                 <div class="result-content">${renderedContent}</div>
             `;
 
