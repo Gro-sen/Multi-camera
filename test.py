@@ -26,59 +26,103 @@ class RealDataAnalyzer:
         self.load_all_cases()
 
     def analyze_consistency_rate(self):
-            """画面描述与决策一致率（识别成功率）统计，支持多种一致性规则"""
-            total = 0
-            consistent = 0
-            inconsistent_cases = []
-            for case in self.cases_data:
-                vf = case.get('vision_facts', {})
-                fd = case.get('final_decision', {})
-                # 规则1：是否有人与报警决策一致
-                has_person = vf.get('has_person')
-                is_alarm = fd.get('is_alarm')
-                rule1 = (has_person is not None and is_alarm is not None)
-                rule1_consistent = (has_person and is_alarm == "是") or (not has_person and is_alarm == "否") if rule1 else None
+        """画面描述与决策一致率（逻辑自洽性）统计"""
+        total = 0
+        consistent = 0
+        inconsistent_cases = []
 
-                # 规则2：未佩戴工牌与报警原因一致
-                badge_status = vf.get('badge_status')
-                alarm_reason = fd.get('alarm_reason')
-                rule2 = (badge_status is not None and alarm_reason is not None)
-                rule2_consistent = (badge_status == "未佩戴" and "工牌" in alarm_reason) or (badge_status != "未佩戴" and "工牌" not in alarm_reason) if rule2 else None
+        for case in self.cases_data:
+            vf = case.get('vision_facts', {})
+            fd = case.get('final_decision', {})
+            fr = case.get('face_recognition', {})
+            
+            # 提取关键状态
+            has_person = vf.get('has_person', False)
+            badge_status = vf.get('badge_status', '不适用')
+            enter_restricted = vf.get('enter_restricted_area', False)
+            has_fire = vf.get('has_fire_or_smoke', False)
+            has_electric = vf.get('has_electric_risk', False)
+            
+            is_alarm = fd.get('is_alarm', '否')
+            alarm_level = fd.get('alarm_level', '无')
+            alarm_reason = fd.get('alarm_reason', '')
+            
+            # 人脸状态简化
+            face_matched = fr.get('matched', False) if fr else False
+            face_detected = (fr.get('detected_faces', 0) > 0) if fr else False
+            
+            # --- 核心一致性校验逻辑 ---
+            is_consistent = True
+            reason_for_inconsistency = ""
 
-                # 规则3：进入限制区域与报警原因一致
-                enter_restricted = vf.get('enter_restricted_area')
-                rule3 = (enter_restricted is not None and alarm_reason is not None)
-                rule3_consistent = (enter_restricted and "限制区域" in alarm_reason) or (not enter_restricted and "限制区域" not in alarm_reason) if rule3 else None
+            # 1. 环境风险硬性规则（最高优先级）
+            # 如果有火灾/电气风险，必须报警且等级较高
+            if has_fire or has_electric:
+                if is_alarm != "是":
+                    is_consistent = False
+                    reason_for_inconsistency = "存在环境风险但未报警"
+            
+            # 2. 禁区入侵规则
+            elif enter_restricted:
+                # 进入禁区通常应报警，除非是极特殊情况（这里简化为必须报警）
+                if is_alarm != "是":
+                    is_consistent = False
+                    reason_for_inconsistency = "进入禁区但未报警"
 
-                # 规则4：火灾/烟雾与报警原因一致
-                has_fire = vf.get('has_fire_or_smoke')
-                rule4 = (has_fire is not None and alarm_reason is not None)
-                rule4_consistent = (has_fire and ("火灾" in alarm_reason or "烟雾" in alarm_reason)) or (not has_fire and ("火灾" not in alarm_reason and "烟雾" not in alarm_reason)) if rule4 else None
+            # 3. 人员场景的逻辑自洽（最复杂的部分）
+            elif has_person:
+                # 场景 A: 白名单 + 佩戴工牌 -> 应无报警
+                if face_matched and badge_status == "佩戴":
+                    if is_alarm == "是":
+                        is_consistent = False
+                        reason_for_inconsistency = "白名单佩戴工牌却触发报警"
+                
+                # 场景 B: 陌生人 + 禁区(已在上面处理) / 陌生人 + 普通区 -> 应报警
+                elif face_detected and not face_matched:
+                    if is_alarm != "是":
+                        is_consistent = False
+                        reason_for_inconsistency = "陌生人未触发报警"
 
-                # 规则5：电气隐患与报警原因一致
-                has_electric = vf.get('has_electric_risk')
-                rule5 = (has_electric is not None and alarm_reason is not None)
-                rule5_consistent = (has_electric and "电气" in alarm_reason) or (not has_electric and "电气" not in alarm_reason) if rule5 else None
+                # 场景 C: 有人但没检测到脸（可能是背影）+ 没戴工牌 -> 通常应报警(一般)
+                elif not face_detected and badge_status == "未佩戴":
+                    if is_alarm != "是":
+                        is_consistent = False
+                        reason_for_inconsistency = "未戴工牌且无脸未报警"
 
-                # 统计所有可用规则
-                rules = [rule1_consistent, rule2_consistent, rule3_consistent, rule4_consistent, rule5_consistent]
-                valid_rules = [r for r in rules if r is not None]
-                if valid_rules:
-                    total += 1
-                    if all(valid_rules):
-                        consistent += 1
-                    else:
-                        inconsistent_cases.append(case)
-            if total > 0:
-                rate = consistent / total * 100
-                print("=" * 60)
-                print("【分析8】画面描述与决策一致率（识别成功率）")
-                print("=" * 60)
-                print(f"一致案例数: {consistent}/{total} ({rate:.2f}%)")
-                print(f"不一致案例数: {len(inconsistent_cases)}")
-                print()
+            # 4. 无人场景
+            else: # not has_person
+                if is_alarm == "是":
+                    # 除非是纯环境风险（如没人但着火了），否则没人不应报人员相关的警
+                    if not (has_fire or has_electric):
+                        is_consistent = False
+                        reason_for_inconsistency = "无人场景却触发人员相关报警"
+
+            # 统计
+            total += 1
+            if is_consistent:
+                consistent += 1
             else:
-                print("无可用数据进行一致率统计")
+                inconsistent_cases.append({
+                    "case_id": case.get('case_id'),
+                    "reason": reason_for_inconsistency,
+                    "vision": vf,
+                    "decision": fd
+                })
+
+        if total > 0:
+            rate = consistent / total * 100
+            print("=" * 60)
+            print("【分析8】画面描述与决策逻辑自洽率")
+            print("=" * 60)
+            print(f"总案例数: {total}")
+            print(f"逻辑自洽案例数: {consistent} ({rate:.2f}%)")
+            print(f"逻辑冲突案例数: {len(inconsistent_cases)}")
+            
+            # 打印前5个冲突原因，方便分析
+            for item in inconsistent_cases[:5]:
+                print(f"  - 案例 {item['case_id']}: {item['reason']}")
+        else:
+            print("无可用数据进行一致率统计")
     
     def load_all_cases(self):
         """加载所有案例数据"""
